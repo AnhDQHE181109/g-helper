@@ -379,7 +379,7 @@ public static class AppConfig
 
     public static bool IsStrix()
     {
-        return ContainsModel("Strix") || ContainsModel("Scar");
+        return ContainsModel("Strix") || ContainsModel("Scar") || ContainsModel("G703G");
     }
 
     public static bool IsStrixLimitedRGB()
@@ -410,6 +410,11 @@ public static class AppConfig
     public static bool IsX13()
     {
         return ContainsModel("X13");
+    }
+
+    public static bool IsG14AMD()
+    {
+        return ContainsModel("GA402R");
     }
 
     public static bool DynamicBoost5()

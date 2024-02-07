@@ -12,7 +12,6 @@ using GHelper.Peripherals;
 using GHelper.Peripherals.Mouse;
 using GHelper.UI;
 using GHelper.USB;
-using System;
 using System.Diagnostics;
 using System.Timers;
 
@@ -24,8 +23,8 @@ namespace GHelper
         ToolStripMenuItem menuSilent, menuBalanced, menuTurbo, menuEco, menuStandard, menuUltimate, menuOptimized;
 
         public GPUModeControl gpuControl;
+        public AllyControl allyControl;
         ScreenControl screenControl = new ScreenControl();
-        AllyControl allyControl;
         AutoUpdateControl updateControl;
 
         AsusMouseSettings? mouseSettings;
@@ -91,6 +90,9 @@ namespace GHelper
             buttonMatrix.Text = Properties.Strings.PictureGif;
             buttonQuit.Text = Properties.Strings.Quit;
             buttonUpdates.Text = Properties.Strings.Updates;
+
+            buttonController.Text = Properties.Strings.Controller;
+            labelAlly.Text = Properties.Strings.AllyController;
 
             // Accessible Labels
 
@@ -235,7 +237,9 @@ namespace GHelper
 
             buttonControllerMode.Click += ButtonControllerMode_Click;
             buttonBacklight.Click += ButtonBacklight_Click;
+
             buttonFPS.Click += ButtonFPS_Click;
+            buttonOverlay.Click += ButtonOverlay_Click;
 
             Text = "G-Helper " + (ProcessHelper.IsUserAdministrator() ? "—" : "-") + " " + AppConfig.GetModelShort();
             TopMost = AppConfig.Is("topmost");
@@ -248,6 +252,11 @@ namespace GHelper
             buttonFnLock.Click += ButtonFnLock_Click;
 
             panelPerformance.Focus();
+        }
+
+        private void ButtonOverlay_Click(object? sender, EventArgs e)
+        {
+            KeyboardHook.KeyKeyKeyPress(Keys.LControlKey, Keys.LShiftKey, Keys.O);
         }
 
         private void ButtonHandheld_Click(object? sender, EventArgs e)
@@ -424,29 +433,42 @@ namespace GHelper
         protected override void WndProc(ref Message m)
         {
 
-            switch (m.Msg)
+            if (m.Msg == NativeMethods.WM_POWERBROADCAST && m.WParam == (IntPtr)NativeMethods.PBT_POWERSETTINGCHANGE)
             {
-                case NativeMethods.WM_POWERBROADCAST:
-                    if (m.WParam == (IntPtr)NativeMethods.PBT_POWERSETTINGCHANGE)
+                var settings = (NativeMethods.POWERBROADCAST_SETTING)m.GetLParam(typeof(NativeMethods.POWERBROADCAST_SETTING));
+                if (settings.PowerSetting == NativeMethods.PowerSettingGuid.LIDSWITCH_STATE_CHANGE)
+                {
+                    switch (settings.Data)
                     {
-                        var settings = (NativeMethods.POWERBROADCAST_SETTING)m.GetLParam(typeof(NativeMethods.POWERBROADCAST_SETTING));
-                        switch (settings.Data)
-                        {
-                            case 0:
-                                Logger.WriteLine("Monitor Power Off");
-                                Aura.ApplyBrightness(0);
-                                break;
-                            case 1:
-                                Logger.WriteLine("Monitor Power On");
-                                Program.SetAutoModes();
-                                break;
-                            case 2:
-                                Logger.WriteLine("Monitor Dimmed");
-                                break;
-                        }
+                        case 0:
+                            Logger.WriteLine("Lid Closed");
+                            Aura.ApplyBrightness(0, "Lid");
+                            break;
+                        case 1:
+                            Logger.WriteLine("Lid Open");
+                            Aura.ApplyBrightness(InputDispatcher.GetBacklight(), "Lid");
+                            break;
                     }
-                    m.Result = (IntPtr)1;
-                    break;
+
+                }
+                else
+                {
+                    switch (settings.Data)
+                    {
+                        case 0:
+                            Logger.WriteLine("Monitor Power Off");
+                            Aura.ApplyBrightness(0);
+                            break;
+                        case 1:
+                            Logger.WriteLine("Monitor Power On");
+                            Program.SetAutoModes();
+                            break;
+                        case 2:
+                            Logger.WriteLine("Monitor Dimmed");
+                            break;
+                    }
+                }
+                m.Result = (IntPtr)1;
             }
 
             try
@@ -1024,6 +1046,7 @@ namespace GHelper
             if (extraForm != null && extraForm.Text != "") extraForm.Close();
             if (updatesForm != null && updatesForm.Text != "") updatesForm.Close();
             if (matrixForm != null && matrixForm.Text != "") matrixForm.Close();
+            if (handheldForm != null && handheldForm.Text != "") handheldForm.Close();
         }
 
         /// <summary>
@@ -1044,6 +1067,7 @@ namespace GHelper
                    (extraForm != null && extraForm.ContainsFocus) ||
                    (updatesForm != null && updatesForm.ContainsFocus) ||
                    (matrixForm != null && matrixForm.ContainsFocus) ||
+                   (handheldForm != null && handheldForm.ContainsFocus) ||
                    this.ContainsFocus ||
                    (lostFocusCheck && Math.Abs(DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastLostFocus) < 300);
         }
@@ -1358,11 +1382,13 @@ namespace GHelper
                     buttonEco.Activated = !GPUAuto;
                     buttonOptimized.Activated = GPUAuto;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeEco;
+                    panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + (GPUAuto ? Properties.Strings.Optimized : Properties.Strings.EcoMode);
                     Program.trayIcon.Icon = Properties.Resources.eco;
                     break;
                 case AsusACPI.GPUModeUltimate:
                     buttonUltimate.Activated = true;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeUltimate;
+                    panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + Properties.Strings.UltimateMode;
                     Program.trayIcon.Icon = Properties.Resources.ultimate;
                     break;
                 default:
@@ -1370,9 +1396,12 @@ namespace GHelper
                     buttonStandard.Activated = !GPUAuto;
                     buttonOptimized.Activated = GPUAuto;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeStandard;
+                    panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + (GPUAuto ? Properties.Strings.Optimized : Properties.Strings.StandardMode);
                     Program.trayIcon.Icon = Properties.Resources.standard;
                     break;
             }
+
+            
 
             VisualizeXGM(GPUMode);
 

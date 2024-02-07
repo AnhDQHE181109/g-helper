@@ -82,13 +82,6 @@ Each BIOS mode is paired with matching Windows Power Mode. You can adjust this s
 
 ![GPU Modes](https://github.com/seerge/g-helper/assets/5920850/65c6bdd5-728c-4965-b544-fcf5a85ed6a2)
 
-### 🔖 Important Notice
-
-G-Helper is **NOT** an operating system, firmware or a driver. It **DOESN'T** "run" your hardware in realtime anyhow. 
-
-It's an app that lets you select (already predefined and stored in BIOS) operating modes and (optionally) set some settings that already exist on your device (same as Armoury Crate). If you use same mode / settings as in Armoury Crate - performance of your device won't be different.
-
-Role of G-Helper for your laptop is similar to a role of a remote control for your TV.
 
 ### :mouse: Asus Mouse and other peripherals support
 
@@ -102,6 +95,7 @@ Role of G-Helper for your laptop is similar to a role of a remote control for yo
 - ROG Keris Wireless
 - ROG Strix Carry (P508)
 - ROG Strix III Gladius III Aimpoint Wireless (P711)
+- ROG Strix Impact III (P518)
 - ROG Spatha
 - ROG Strix Impact II Wireless
 - TUF Gaming M4 Wireless (P306)
@@ -139,14 +133,24 @@ Huge thanks to [@IceStormNG](https://github.com/IceStormNG) 👑 for contributio
 
 ------------------
 
-**Libraries and projects used**
+### 🔖 Important Notice
+
+G-Helper is **NOT** an operating system, firmware, or driver. It **DOES NOT** "run" your hardware in real-time anyhow. 
+
+It's an app that lets you select one of the predefined operating modes created by manufacturer (and stored in BIOS) and optionally(!) set some settings that already exist on your device same as Armoury Crate can. It does it by using the Asus System Control Interface "driver" that Armoury uses for it.
+
+If you use equivalent mode/settings as in Armoury Crate - the performance or the behavior of your device won't be different.
+
+The role of G-Helper for your laptop is similar to the role of a remote control for your TV.
+
+### Libraries and projects used
 - [Linux Kernel](https://github.com/torvalds/linux/blob/master/drivers/platform/x86/asus-wmi.c) for some basic endpoints in ASUS ACPI/WMI interface
 - [NvAPIWrapper](https://github.com/falahati/NvAPIWrapper) for accessing Nvidia API
 - [Starlight](https://github.com/vddCore/Starlight) for anime matrix communication protocol
 - [UXTU](https://github.com/JamesCJ60/Universal-x86-Tuning-Utility) for undervolting using Ryzen System Management Unit
 - [AsusCtl](https://gitlab.com/asus-linux/asusctl) for inspiration and some reverse engineering
 
-**Disclaimers**
+### Disclaimers
 "ROG", "TUF", and "Armoury Crate" are trademarked by and belong to AsusTek Computer, Inc. I make no claims to these or any assets belonging to AsusTek Computer and use them purely for informational purposes only.
 
 THE SOFTWARE IS PROVIDED “AS IS” AND WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. MISUSE OF THIS SOFTWARE COULD CAUSE SYSTEM INSTABILITY OR MALFUNCTION.

@@ -184,9 +184,7 @@ namespace GHelper.Gpu
         {
             if (SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online) return false;
             if (!AppConfig.Is("optimized_usbc")) return true;
-            else if (AppConfig.GetModelShort() == "ASUS TUF Gaming A15 FA507NV") Thread.Sleep(600);
-
-            if (AppConfig.ContainsModel("FA507")) Thread.Sleep(1000);
+            else if (AppConfig.ContainsModel("FA507")) Thread.Sleep(600);
 
             int chargerMode = Program.acpi.DeviceGet(AsusACPI.ChargerMode);
             Logger.WriteLine("ChargerStatus: " + chargerMode);

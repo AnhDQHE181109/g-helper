@@ -199,7 +199,7 @@
     <value>Rapide</value>
   </data>
   <data name="AuraLightingMode" xml:space="preserve">
-    <value>Mode d’Éclairage</value>
+    <value>Effets d'éclairage</value>
   </data>
   <data name="AuraNormal" xml:space="preserve">
     <value>Normal</value>
@@ -235,7 +235,7 @@
     <value>Molette</value>
   </data>
   <data name="AuraZoneUnderglow" xml:space="preserve">
-    <value>Underglow</value>
+    <value>Led ROG</value>
   </data>
   <data name="AutoApply" xml:space="preserve">
     <value>Appliquer automatiquement</value>
@@ -330,11 +330,17 @@
   <data name="DisableController" xml:space="preserve">
     <value>Désactiver le contrôleur</value>
   </data>
+  <data name="DisableOnLidClose" xml:space="preserve">
+    <value>Disable on lid close</value>
+  </data>
   <data name="DisableOverdrive" xml:space="preserve">
     <value>Désactiver l'overdrive de l'écran</value>
   </data>
   <data name="Discharging" xml:space="preserve">
     <value>Taux décharge </value>
+  </data>
+  <data name="DownloadColorProfiles" xml:space="preserve">
+    <value>Download Color Profiles</value>
   </data>
   <data name="DownloadUpdate" xml:space="preserve">
     <value>Télécharger</value>
@@ -363,7 +369,7 @@ Voulez-vous continuer ?</value>
     <value>Paramètres d'énergie</value>
   </data>
   <data name="Export" xml:space="preserve">
-    <value>Exporter un profil</value>
+    <value>Exporter profil</value>
   </data>
   <data name="Extra" xml:space="preserve">
     <value>+ d'options</value>
@@ -397,6 +403,9 @@ Voulez-vous continuer ?</value>
   </data>
   <data name="FansPower" xml:space="preserve">
     <value>Ventilateurs + Puissance</value>
+  </data>
+  <data name="FlickerFreeDimming" xml:space="preserve">
+    <value>Flicker-free Dimming</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Traiter les raccourcis clavier Fn+F sans Fn</value>
@@ -441,7 +450,7 @@ Voulez-vous continuer ?</value>
     <value>Rotation de l'image</value>
   </data>
   <data name="Import" xml:space="preserve">
-    <value>Importer un profil</value>
+    <value>Importer profil</value>
   </data>
   <data name="KeyBindings" xml:space="preserve">
     <value>Raccourcis clavier</value>
@@ -456,10 +465,10 @@ Voulez-vous continuer ?</value>
     <value>Rétroéclairage du clavier</value>
   </data>
   <data name="LaptopKeyboard" xml:space="preserve">
-    <value>Clavier de l'ordinateur</value>
+    <value>Clavier</value>
   </data>
   <data name="LaptopScreen" xml:space="preserve">
-    <value>Écran de l'ordinateur </value>
+    <value>Écran</value>
   </data>
   <data name="Lid" xml:space="preserve">
     <value>Capot</value>
@@ -522,7 +531,7 @@ Voulez-vous continuer ?</value>
     <value>Minutes</value>
   </data>
   <data name="MouseAngleSnapping" xml:space="preserve">
-    <value>Angle Snapping</value>
+    <value>Correction d'angle</value>
   </data>
   <data name="MouseAutoPowerOff" xml:space="preserve">
     <value>Arrêt automatique après</value>
@@ -534,7 +543,7 @@ Voulez-vous continuer ?</value>
     <value>Échec de l'importation. Le fichier sélectionné n'est pas un profil de souris valide ou corrompu.</value>
   </data>
   <data name="MouseLiftOffDistance" xml:space="preserve">
-    <value>Lift Off Distance</value>
+    <value>Hauteur de détection</value>
   </data>
   <data name="MouseLowBatteryWarning" xml:space="preserve">
     <value>Avertissement de batterie faible à</value>
@@ -588,7 +597,7 @@ Voulez-vous continuer ?</value>
     <value>Overdrive</value>
   </data>
   <data name="PerformanceMode" xml:space="preserve">
-    <value>Mode Performance</value>
+    <value>Mode</value>
   </data>
   <data name="Peripherals" xml:space="preserve">
     <value>Périphériques</value>
@@ -718,6 +727,9 @@ Voulez-vous continuer ?</value>
   </data>
   <data name="VibrationStrength" xml:space="preserve">
     <value>Intensité de la vibration</value>
+  </data>
+  <data name="VisualMode" xml:space="preserve">
+    <value>Visual Mode</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Vol-</value>

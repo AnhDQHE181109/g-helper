@@ -330,11 +330,17 @@
   <data name="DisableController" xml:space="preserve">
     <value>Вимкнути контролер</value>
   </data>
+  <data name="DisableOnLidClose" xml:space="preserve">
+    <value>Вимкнути при закритті</value>
+  </data>
   <data name="DisableOverdrive" xml:space="preserve">
     <value>Вимкнути овердрайв дисплею</value>
   </data>
   <data name="Discharging" xml:space="preserve">
     <value>Розрядка</value>
+  </data>
+  <data name="DownloadColorProfiles" xml:space="preserve">
+    <value>Download Color Profiles</value>
   </data>
   <data name="DownloadUpdate" xml:space="preserve">
     <value>Завантажити</value>
@@ -397,6 +403,9 @@
   </data>
   <data name="FansPower" xml:space="preserve">
     <value>Кулери та Потужність</value>
+  </data>
+  <data name="FlickerFreeDimming" xml:space="preserve">
+    <value>Flicker-free Dimming</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Гарячі клавіші Fn+F працюють без натискання Fn</value>
@@ -699,7 +708,7 @@
     <value>Вимкнений</value>
   </data>
   <data name="TurnOffOnBattery" xml:space="preserve">
-    <value>Вимикати на батареї</value>
+    <value>Вимкнути на батареї</value>
   </data>
   <data name="UltimateGPUTooltip" xml:space="preserve">
     <value>Підключає екран лептопу до dGPU, щоб підвищити FPS</value>
@@ -718,6 +727,9 @@
   </data>
   <data name="VibrationStrength" xml:space="preserve">
     <value>Сила вібрації</value>
+  </data>
+  <data name="VisualMode" xml:space="preserve">
+    <value>Visual Mode</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Зменшення гучності</value>

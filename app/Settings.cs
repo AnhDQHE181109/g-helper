@@ -24,7 +24,7 @@ namespace GHelper
 
         public GPUModeControl gpuControl;
         public AllyControl allyControl;
-        ScreenControl screenControl = new ScreenControl();
+        ScreenControl screenControl = new ScreenControl(); 
         AutoUpdateControl updateControl;
 
         AsusMouseSettings? mouseSettings;
@@ -47,6 +47,8 @@ namespace GHelper
 
         bool batteryMouseOver = false;
         bool batteryFullMouseOver = false;
+
+        bool sliderGammaIgnore = false;
 
         public SettingsForm()
         {
@@ -85,6 +87,7 @@ namespace GHelper
             labelPeripherals.Text = Properties.Strings.Peripherals;
 
             checkMatrix.Text = Properties.Strings.TurnOffOnBattery;
+            checkMatrixLid.Text = Properties.Strings.DisableOnLidClose;
             checkStartup.Text = Properties.Strings.RunOnStartup;
 
             buttonMatrix.Text = Properties.Strings.PictureGif;
@@ -115,7 +118,7 @@ namespace GHelper
             buttonScreenAuto.AccessibleName = Properties.Strings.AutoMode;
             //button60Hz.AccessibleName = "60Hz Refresh Rate";
             //button120Hz.AccessibleName = "Maximum Refresh Rate";
-            
+
             panelKeyboard.AccessibleName = Properties.Strings.LaptopKeyboard;
             buttonKeyboard.AccessibleName = Properties.Strings.ExtraSettings;
             buttonKeyboardColor.AccessibleName = Properties.Strings.LaptopKeyboard + " " + Properties.Strings.Color;
@@ -173,9 +176,11 @@ namespace GHelper
 
             comboMatrix.DropDownStyle = ComboBoxStyle.DropDownList;
             comboMatrixRunning.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboInterval.DropDownStyle = ComboBoxStyle.DropDownList;
 
             comboMatrix.DropDownClosed += ComboMatrix_SelectedValueChanged;
             comboMatrixRunning.DropDownClosed += ComboMatrixRunning_SelectedValueChanged;
+            comboInterval.DropDownClosed += ComboInterval_DropDownClosed;
 
             buttonMatrix.Click += ButtonMatrix_Click;
 
@@ -216,7 +221,7 @@ namespace GHelper
             sliderBattery.ValueChanged += SliderBattery_ValueChanged;
             Program.trayIcon.MouseMove += TrayIcon_MouseMove;
 
-            sensorTimer = new System.Timers.Timer(1000);
+            sensorTimer = new System.Timers.Timer(AppConfig.Get("sensor_timer", 1000));
             sensorTimer.Elapsed += OnTimedEvent;
             sensorTimer.Enabled = true;
 
@@ -252,6 +257,137 @@ namespace GHelper
             buttonFnLock.Click += ButtonFnLock_Click;
 
             panelPerformance.Focus();
+            InitVisual();
+        }
+
+
+        public void InitVisual()
+        {
+
+            if (AppConfig.IsOLED())
+            {
+                panelGamma.Visible = true;
+                sliderGamma.Visible = true;
+                labelGammaTitle.Text = Properties.Strings.FlickerFreeDimming + " / " + Properties.Strings.VisualMode;
+
+                VisualiseBrightness();
+
+                sliderGamma.ValueChanged += SliderGamma_ValueChanged;
+                sliderGamma.MouseUp += SliderGamma_ValueChanged;
+
+            } else
+            {
+                labelGammaTitle.Text = Properties.Strings.VisualMode;
+            }
+
+            var gamuts = VisualControl.GetGamutModes();
+
+            // Color profiles exist
+            if (gamuts.Count > 0)
+            {
+                tableVisual.ColumnCount = 3;
+                buttonInstallColor.Visible = false;
+            } else
+            {
+                // If it's possible to retrieve color profiles
+                if (ColorProfileHelper.ProfileExists())
+                {
+                    tableVisual.ColumnCount = 2;
+
+                    buttonInstallColor.Text = Properties.Strings.DownloadColorProfiles;
+                    buttonInstallColor.Visible = true;
+                    buttonInstallColor.Click += ButtonInstallColorProfile_Click;
+
+                    panelGamma.Visible = true;
+                    tableVisual.Visible = true;
+                }
+
+                return;
+            }
+
+            panelGamma.Visible = true;
+            tableVisual.Visible = true;
+
+            var visualValue = (SplendidCommand)AppConfig.Get("visual", (int)SplendidCommand.Default);
+            var colorTempValue = AppConfig.Get("color_temp", VisualControl.DefaultColorTemp);
+
+            comboVisual.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboVisual.DataSource = new BindingSource(VisualControl.GetVisualModes(), null);
+            comboVisual.DisplayMember = "Value";
+            comboVisual.ValueMember = "Key";
+            comboVisual.SelectedValue = visualValue;
+
+            comboColorTemp.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboColorTemp.DataSource = new BindingSource(VisualControl.GetTemperatures(), null);
+            comboColorTemp.DisplayMember = "Value";
+            comboColorTemp.ValueMember = "Key";
+            comboColorTemp.SelectedValue = colorTempValue;
+
+            VisualControl.SetVisual(visualValue, colorTempValue, true);
+
+            comboVisual.SelectedValueChanged += ComboVisual_SelectedValueChanged;
+            comboVisual.Visible = true;
+
+            comboColorTemp.SelectedValueChanged += ComboVisual_SelectedValueChanged;
+            comboColorTemp.Visible = true;
+
+            if (gamuts.Count <= 1) return;
+
+            comboGamut.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboGamut.DataSource = new BindingSource(gamuts, null);
+            comboGamut.DisplayMember = "Value";
+            comboGamut.ValueMember = "Key";
+            comboGamut.SelectedValue = (SplendidGamut)AppConfig.Get("gamut", (int)SplendidGamut.Native);
+
+            comboGamut.SelectedValueChanged += ComboGamut_SelectedValueChanged;
+            comboGamut.Visible = true;
+
+        }
+
+        public void CycleVisualMode()
+        {
+            if (comboVisual.SelectedIndex < comboVisual.Items.Count - 1)
+                comboVisual.SelectedIndex += 1;
+            else
+                comboVisual.SelectedIndex = 0;
+
+            Program.toast.RunToast(comboVisual.GetItemText(comboVisual.SelectedItem), ToastIcon.BrightnessUp);
+        }
+
+        private async void ButtonInstallColorProfile_Click(object? sender, EventArgs e)
+        {
+            await ColorProfileHelper.InstallProfile();
+            InitVisual();
+        }
+
+        private void ComboGamut_SelectedValueChanged(object? sender, EventArgs e)
+        {
+            AppConfig.Set("gamut", (int)comboGamut.SelectedValue);
+            VisualControl.SetGamut((int)comboGamut.SelectedValue);
+        }
+
+        private void ComboVisual_SelectedValueChanged(object? sender, EventArgs e)
+        {
+            AppConfig.Set("visual", (int)comboVisual.SelectedValue);
+            AppConfig.Set("color_temp", (int)comboColorTemp.SelectedValue);
+            VisualControl.SetVisual((SplendidCommand)comboVisual.SelectedValue, (int)comboColorTemp.SelectedValue);
+        }
+
+        public void VisualiseBrightness()
+        {
+            Invoke(delegate
+            {
+                sliderGammaIgnore = true;
+                sliderGamma.Value = AppConfig.Get("brightness", 100);
+                labelGamma.Text = sliderGamma.Value + "%";
+                sliderGammaIgnore = false;
+            });
+        }
+
+        private void SliderGamma_ValueChanged(object? sender, EventArgs e)
+        {
+            if (sliderGammaIgnore) return;
+            VisualControl.SetBrightness(sliderGamma.Value);
         }
 
         private void ButtonOverlay_Click(object? sender, EventArgs e)
@@ -325,7 +461,7 @@ namespace GHelper
 
         public void VisualiseBacklight(int backlight)
         {
-            buttonBacklight.Text = Math.Round((double)backlight*33.33).ToString() + "%";
+            buttonBacklight.Text = Math.Round((double)backlight * 33.33).ToString() + "%";
         }
 
         public void VisualiseFPSLimit(int limit)
@@ -424,7 +560,7 @@ namespace GHelper
             }
         }
 
-        public void VisualiseMatrix(string image)
+        public void VisualiseMatrixPicture(string image)
         {
             if (matrixForm == null || matrixForm.Text == "") return;
             matrixForm.VisualiseMatrix(image);
@@ -443,10 +579,14 @@ namespace GHelper
                         case 0:
                             Logger.WriteLine("Lid Closed");
                             Aura.ApplyBrightness(0, "Lid");
+                            AniMatrixControl.lidClose = true;
+                            matrixControl.SetLidMode();
                             break;
                         case 1:
                             Logger.WriteLine("Lid Open");
                             Aura.ApplyBrightness(InputDispatcher.GetBacklight(), "Lid");
+                            AniMatrixControl.lidClose = false;
+                            matrixControl.SetLidMode();
                             break;
                     }
 
@@ -686,9 +826,14 @@ namespace GHelper
         private void CheckMatrix_CheckedChanged(object? sender, EventArgs e)
         {
             AppConfig.Set("matrix_auto", checkMatrix.Checked ? 1 : 0);
-            matrixControl.SetMatrix();
+            matrixControl.SetBatteryAuto();
         }
 
+        private void CheckMatrixLid_CheckedChanged(object? sender, EventArgs e)
+        {
+            AppConfig.Set("matrix_lid", checkMatrixLid.Checked ? 1 : 0);
+            matrixControl.SetLidMode(true);
+        }
 
 
         private void ButtonMatrix_Click(object? sender, EventArgs e)
@@ -712,7 +857,7 @@ namespace GHelper
 
         }
 
-        public void SetMatrixRunning(int mode)
+        public void VisualiseMatrixRunning(int mode)
         {
             Invoke(delegate
             {
@@ -721,17 +866,23 @@ namespace GHelper
             });
         }
 
+        private void ComboInterval_DropDownClosed(object? sender, EventArgs e)
+        {
+            AppConfig.Set("matrix_interval", comboInterval.SelectedIndex);
+            matrixControl.SetDevice();
+        }
+
         private void ComboMatrixRunning_SelectedValueChanged(object? sender, EventArgs e)
         {
             AppConfig.Set("matrix_running", comboMatrixRunning.SelectedIndex);
-            matrixControl.SetMatrix();
+            matrixControl.SetDevice();
         }
 
 
         private void ComboMatrix_SelectedValueChanged(object? sender, EventArgs e)
         {
             AppConfig.Set("matrix_brightness", comboMatrix.SelectedIndex);
-            matrixControl.SetMatrix();
+            matrixControl.SetDevice();
         }
 
 
@@ -807,7 +958,7 @@ namespace GHelper
             FansToggle();
         }
 
-        private void SetColorPicker(string colorField = "aura_color") 
+        private void SetColorPicker(string colorField = "aura_color")
         {
             ColorDialog colorDlg = new ColorDialog();
             colorDlg.AllowFullOpen = true;
@@ -896,11 +1047,34 @@ namespace GHelper
                 return;
             }
 
+            if (matrixControl.IsSlash)
+            {
+                labelMatrix.Text = "Slash Lightning";
+                comboMatrixRunning.Items.Clear();
+
+                foreach (var item in SlashDevice.Modes)
+                {
+                    comboMatrixRunning.Items.Add(item.Value);
+                }
+
+                comboInterval.Visible = true;
+                comboInterval.Items.Add($"Interval Off");
+                for (int i = 1; i <= 5; i++) comboInterval.Items.Add($"Interval {i}s");
+
+                buttonMatrix.Visible = false;
+                checkMatrixLid.Visible = true;
+            }
+
             comboMatrix.SelectedIndex = Math.Min(AppConfig.Get("matrix_brightness", 0), comboMatrix.Items.Count - 1);
             comboMatrixRunning.SelectedIndex = Math.Min(AppConfig.Get("matrix_running", 0), comboMatrixRunning.Items.Count - 1);
+            comboInterval.SelectedIndex = Math.Min(AppConfig.Get("matrix_interval", 0), comboInterval.Items.Count - 1);
 
             checkMatrix.Checked = AppConfig.Is("matrix_auto");
             checkMatrix.CheckedChanged += CheckMatrix_CheckedChanged;
+
+            checkMatrixLid.Checked = AppConfig.Is("matrix_lid");
+            checkMatrixLid.CheckedChanged += CheckMatrixLid_CheckedChanged;
+
 
         }
 
@@ -909,7 +1083,7 @@ namespace GHelper
         {
             comboMatrix.SelectedIndex = Math.Min(Math.Max(0, comboMatrix.SelectedIndex + delta), comboMatrix.Items.Count - 1);
             AppConfig.Set("matrix_brightness", comboMatrix.SelectedIndex);
-            matrixControl.SetMatrix();
+            matrixControl.SetDevice();
             Program.toast.RunToast(comboMatrix.GetItemText(comboMatrix.SelectedItem), delta > 0 ? ToastIcon.BacklightUp : ToastIcon.BacklightDown);
         }
 
@@ -1222,11 +1396,13 @@ namespace GHelper
         {
             if (InvokeRequired)
             {
-                Invoke(delegate { 
+                Invoke(delegate
+                {
                     labelPerf.Text = modeText;
                     panelPerformance.AccessibleName = labelPerf.Text;
                 });
-            } else
+            }
+            else
             {
                 labelPerf.Text = modeText;
                 panelPerformance.AccessibleName = labelPerf.Text;
@@ -1401,7 +1577,7 @@ namespace GHelper
                     break;
             }
 
-            
+
 
             VisualizeXGM(GPUMode);
 
@@ -1575,7 +1751,7 @@ namespace GHelper
                     return;
                 }
                 mouseSettings = new AsusMouseSettings(am);
-                mouseSettings.TopMost = true;
+                mouseSettings.TopMost = AppConfig.Is("topmost");
                 mouseSettings.FormClosed += MouseSettings_FormClosed;
                 mouseSettings.Disposed += MouseSettings_Disposed;
                 if (!mouseSettings.IsDisposed)

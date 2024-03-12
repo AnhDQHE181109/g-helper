@@ -1,10 +1,10 @@
 # G-Helper - Lightweight control tool for Asus laptops
 [![United24](https://raw.githubusercontent.com/seerge/g-helper/main/docs/ua.png)](https://u24.gov.ua/)
-[![GitHub release](https://img.shields.io/github/release/seerge/g-helper.svg?style=flat-square)](https://GitHub.com/seerge/g-helper/releases/) 
-[![Github all releases](https://img.shields.io/github/downloads/seerge/g-helper/total.svg?style=flat-square)](https://GitHub.com/seerge/g-helper/releases/) [![GitHub stars](https://img.shields.io/github/stars/seerge/g-helper.svg?style=social)](https://GitHub.com/seerge/g-helper/stargazers/) 
+[![GitHub release](https://img.shields.io/github/release/seerge/g-helper)](https://GitHub.com/seerge/g-helper/releases/) 
+[![Github all releases](https://img.shields.io/github/downloads/seerge/g-helper/total)](https://GitHub.com/seerge/g-helper/releases/) [![GitHub stars](https://img.shields.io/github/stars/seerge/g-helper.svg?style=social)](https://GitHub.com/seerge/g-helper/stargazers/) 
 
 Small and lightweight Armoury Crate alternative for Asus laptops offering almost same functionality without extra bloat and unnecessary services. 
-Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13, Flow X16, Flow Z13, TUF Series, Strix / Scar Series, ProArt, VivoBook and many more! 
+Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13, Flow X16, Flow Z13, TUF Series, Strix / Scar Series, ProArt, VivoBook, Ally and many more! 
 
 # [:floppy_disk:Download](https://github.com/seerge/g-helper/releases/latest/download/GHelper.zip)
 
@@ -30,7 +30,7 @@ Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13
 4. Simple and clean native UI with easy access to all settings
 5. FN-Lock and custom hotkeys
 
-![Screenshot 2023-08-05 190302](https://github.com/seerge/g-helper/assets/5920850/5d32b8d8-0eb8-4da8-9d5f-95120ea921cf)
+![Screenshot 2024-03-11 104354](https://github.com/seerge/g-helper/assets/5920850/626a5a6e-fdae-431c-843e-92886c8420ee)
 
 ### :zap: Features
 
@@ -78,7 +78,7 @@ Each BIOS mode is paired with matching Windows Power Mode. You can adjust this s
 3. **Ultimate**: iGPU and dGPU enabled, but dGPU drives built in display (supported on 2022+ models)
 4. **Optimized**: disables dGPU on battery (Eco) and enables when plugged in (Standard)
 
-![Screenshot 2023-08-05 170159](https://github.com/seerge/g-helper/assets/5920850/84a5beb3-2463-40f1-9188-930d3099aad9)
+![Screenshot 2024-03-11 111818](https://github.com/seerge/g-helper/assets/5920850/fd69a81e-978d-4d5c-a0a8-26da51f90a5b)
 
 ![GPU Modes](https://github.com/seerge/g-helper/assets/5920850/65c6bdd5-728c-4965-b544-fcf5a85ed6a2)
 
@@ -112,7 +112,7 @@ Huge thanks to [@IceStormNG](https://github.com/IceStormNG) 👑 for contributio
 - ``Ctrl + M1 / M2`` - Screen brightness Down / Up
 - ``Shift + M1 / M2`` - Backlight brightness Down / Up
 - ``Fn + C`` - Fn-Lock
-- ``Fn + Shift + F7 / F8`` - Matrix brightness Down / Up
+- ``Fn + Shift + F7 / F8`` - Matrix / Slash Lightning brightness Down / Up
 - ``Fn + Shift + F7 / F8`` - Screenpad brightness Down / Up
 - ``Ctrl + Shift + F20`` - Mute Microphone
 - ``Ctrl + Shift + Alt + F14`` - Eco GPU Mode
@@ -123,6 +123,14 @@ Huge thanks to [@IceStormNG](https://github.com/IceStormNG) 👑 for contributio
 - ``Ctrl + Shift + Alt + F19`` - Custom 1 (if exists)
 - ``Ctrl + Shift + Alt + F20`` - Custom 2 (if exists)
 - [Custom keybindings / hotkeys](https://github.com/seerge/g-helper/wiki/Power-user-settings#custom-hotkey-actions)
+
+### 🎮ROG Ally Bindings
+- ``M + DPad Left / Right`` - Display Brightness
+- ``M + DPad Up`` - Touch keyboard
+- ``M + DPad Down`` - Show desktop
+- ``M + Y`` - Toggle AMD overay
+- ``M + X`` - Screenshot
+- ``M + Right Stick Click`` - Controller Mode
 
 ------------------
 #### If you like the app you can make a Donation 

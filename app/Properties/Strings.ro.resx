@@ -330,11 +330,17 @@
   <data name="DisableController" xml:space="preserve">
     <value>Disable Controller</value>
   </data>
+  <data name="DisableOnLidClose" xml:space="preserve">
+    <value>Disable on lid close</value>
+  </data>
   <data name="DisableOverdrive" xml:space="preserve">
     <value>Dezactivează screen overdrive</value>
   </data>
   <data name="Discharging" xml:space="preserve">
     <value>Se descarcă</value>
+  </data>
+  <data name="DownloadColorProfiles" xml:space="preserve">
+    <value>Download Color Profiles</value>
   </data>
   <data name="DownloadUpdate" xml:space="preserve">
     <value>Descarcă</value>
@@ -397,6 +403,9 @@
   </data>
   <data name="FansPower" xml:space="preserve">
     <value>Fans + Power</value>
+  </data>
+  <data name="FlickerFreeDimming" xml:space="preserve">
+    <value>Flicker-free Dimming</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Procesează tastele Fn+F fără Fn</value>
@@ -718,6 +727,9 @@
   </data>
   <data name="VibrationStrength" xml:space="preserve">
     <value>Vibration Strength</value>
+  </data>
+  <data name="VisualMode" xml:space="preserve">
+    <value>Visual Mode</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Buton scădere volum</value>

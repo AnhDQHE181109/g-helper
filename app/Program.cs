@@ -32,7 +32,7 @@ namespace GHelper
         public static ModeControl modeControl = new ModeControl();
         public static GPUModeControl gpuControl = new GPUModeControl(settingsForm);
         public static AllyControl allyControl = new AllyControl(settingsForm);
-        public static ScreenControl screenControl = new ScreenControl();
+        public static ScreenControl screenControl = new ScreenControl(); 
         public static ClamshellModeControl clamshellControl = new ClamshellModeControl();
 
         public static ToastForm toast = new ToastForm();
@@ -215,6 +215,8 @@ namespace GHelper
             isPlugged = SystemInformation.PowerStatus.PowerLineStatus;
             Logger.WriteLine("AutoSetting for " + isPlugged.ToString());
 
+            BatteryControl.AutoBattery(init);
+
             inputDispatcher.Init();
 
             modeControl.AutoPerformance(powerChanged);
@@ -227,9 +229,7 @@ namespace GHelper
                 screenControl.AutoScreen();
             }
 
-            BatteryControl.AutoBattery(init);
-
-            settingsForm.matrixControl.SetMatrix(true);
+            settingsForm.matrixControl.SetDevice(true);
 
             if (AppConfig.IsAlly())
             {
@@ -266,7 +266,7 @@ namespace GHelper
             {
                 // If helper window is not on top, this just focuses on the app again
                 // Pressing the ghelper button again will hide the app
-                if (checkForFocus && !settingsForm.HasAnyFocus(trayClick))
+                if (checkForFocus && !settingsForm.HasAnyFocus(trayClick) && !AppConfig.Is("topmost"))
                 {
                     settingsForm.ShowAll();
                 }

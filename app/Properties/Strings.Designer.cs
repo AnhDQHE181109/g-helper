@@ -700,6 +700,15 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Disable on lid close.
+        /// </summary>
+        internal static string DisableOnLidClose {
+            get {
+                return ResourceManager.GetString("DisableOnLidClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable screen overdrive.
         /// </summary>
         internal static string DisableOverdrive {
@@ -714,6 +723,15 @@ namespace GHelper.Properties {
         internal static string Discharging {
             get {
                 return ResourceManager.GetString("Discharging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download Color Profiles.
+        /// </summary>
+        internal static string DownloadColorProfiles {
+            get {
+                return ResourceManager.GetString("DownloadColorProfiles", resourceCulture);
             }
         }
         
@@ -790,9 +808,9 @@ namespace GHelper.Properties {
                 return ResourceManager.GetString("EnergySettings", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Export.
+        ///   Looks up a localized string similar to Export Profile.
         /// </summary>
         internal static string Export {
             get {
@@ -896,6 +914,15 @@ namespace GHelper.Properties {
         internal static string FansPower {
             get {
                 return ResourceManager.GetString("FansPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Flicker-free Dimming.
+        /// </summary>
+        internal static string FlickerFreeDimming {
+            get {
+                return ResourceManager.GetString("FlickerFreeDimming", resourceCulture);
             }
         }
         
@@ -1024,9 +1051,9 @@ namespace GHelper.Properties {
                 return ResourceManager.GetString("ImageRotation", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Import.
+        ///   Looks up a localized string similar to Import Profile.
         /// </summary>
         internal static string Import {
             get {
@@ -1294,9 +1321,9 @@ namespace GHelper.Properties {
                 return ResourceManager.GetString("MouseButtonResponse", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Import failed. Selected file is not a valid mouse profile or corrutpted.
+        ///   Looks up a localized string similar to Import failed. Selected file is not a valid mouse profile or corrutpted..
         /// </summary>
         internal static string MouseImportFailed {
             get {
@@ -1800,7 +1827,7 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Turn off on battery.
+        ///   Looks up a localized string similar to Disable on battery.
         /// </summary>
         internal static string TurnOffOnBattery {
             get {
@@ -1859,6 +1886,15 @@ namespace GHelper.Properties {
         internal static string VibrationStrength {
             get {
                 return ResourceManager.GetString("VibrationStrength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visual Mode.
+        /// </summary>
+        internal static string VisualMode {
+            get {
+                return ResourceManager.GetString("VisualMode", resourceCulture);
             }
         }
         

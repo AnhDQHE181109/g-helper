@@ -34,6 +34,7 @@ namespace GHelper
               {"fnlock", Properties.Strings.ToggleFnLock},
               {"brightness_down", Properties.Strings.BrightnessDown},
               {"brightness_up", Properties.Strings.BrightnessUp},
+              {"visual", Properties.Strings.VisualMode},
               {"ghelper", Properties.Strings.OpenGHelper},
               {"custom", Properties.Strings.Custom}
             };
@@ -71,6 +72,9 @@ namespace GHelper
                 case "fnc":
                     customActions[""] = Properties.Strings.ToggleFnLock;
                     customActions.Remove("fnlock");
+                    break;
+                case "fnv":
+                    customActions[""] = EMPTY;
                     break;
                 case "fne":
                     customActions[""] = "Calculator";
@@ -160,6 +164,7 @@ namespace GHelper
             comboM4.AccessibleName = "M4 Action";
             comboFNF4.AccessibleName = "Fn+F4 Action";
             comboFNC.AccessibleName = "Fn+C Action";
+            comboFNV.AccessibleName = "Fn+V Action";
             comboFNE.AccessibleName = "Fn+Numpad Action";
 
             numericBacklightPluggedTime.AccessibleName = Properties.Strings.BacklightTimeoutPlugged;
@@ -210,6 +215,11 @@ namespace GHelper
                 checkUSBC.Visible = false;
             }
 
+            if (AppConfig.IsOLED())
+            {
+                checkNoOverdrive.Visible = false;
+            }
+
             // Change text and hide irrelevant options on the ROG Ally,
             // which is a bit of a special case piece of hardware.
             if (AppConfig.IsAlly())
@@ -226,6 +236,10 @@ namespace GHelper
                 labelFNC.Visible = false;
                 comboFNC.Visible = false;
                 textFNC.Visible = false;
+
+                labelFNV.Visible = false;
+                comboFNV.Visible = false;
+                textFNV.Visible = false;
 
                 SetKeyCombo(comboM3, textM3, "cc");
                 SetKeyCombo(comboM4, textM4, "m4");
@@ -257,6 +271,7 @@ namespace GHelper
                 SetKeyCombo(comboFNF4, textFNF4, "fnf4");
 
                 SetKeyCombo(comboFNC, textFNC, "fnc");
+                SetKeyCombo(comboFNV, textFNV, "fnv");
                 SetKeyCombo(comboFNE, textFNE, "fne");
             }
 
@@ -357,7 +372,7 @@ namespace GHelper
             checkTopmost.Checked = AppConfig.Is("topmost");
             checkTopmost.CheckedChanged += CheckTopmost_CheckedChanged; ;
 
-            checkNoOverdrive.Checked = AppConfig.Is("no_overdrive");
+            checkNoOverdrive.Checked = AppConfig.IsNoOverdrive();
             checkNoOverdrive.CheckedChanged += CheckNoOverdrive_CheckedChanged;
 
             checkUSBC.Checked = AppConfig.Is("optimized_usbc");
@@ -393,9 +408,93 @@ namespace GHelper
 
             toolTip.SetToolTip(checkAutoToggleClamshellMode, "Disable sleep on lid close when plugged in and external monitor is connected");
 
+            InitCores();
             InitVariBright();
             InitServices();
             InitHibernate();
+
+            InitACPITesting();
+
+        }
+
+        private void InitACPITesting()
+        {
+            if (!AppConfig.Is("debug")) return;
+
+            pictureScan.Visible = true;
+            panelACPI.Visible = true;
+
+            textACPICommand.Text = "120098";
+            textACPIParam.Text = "25";
+
+            buttonACPISend.Click += ButtonACPISend_Click;
+            pictureScan.Click += PictureScan_Click;
+        }
+
+        private void ButtonACPISend_Click(object? sender, EventArgs e)
+        {
+            try {
+                int deviceID = Convert.ToInt32(textACPICommand.Text, 16);
+                int status = Convert.ToInt32(textACPIParam.Text, textACPIParam.Text.Contains("x") ? 16 : 10);
+                int result = Program.acpi.DeviceSet((uint)deviceID, status, "TestACPI " + deviceID.ToString("X8") + " " + status.ToString("X4"));
+                labelACPITitle.Text = "ACPI DEVS Test : " + result.ToString();
+            } catch (Exception ex)
+            {
+                Logger.WriteLine(ex.Message);
+            }
+        }
+
+        private void InitCores()
+        {
+            (int eCores, int pCores) = Program.acpi.GetCores();
+            (int eCoresMax, int pCoresMax) = Program.acpi.GetCores(true);
+
+            if (eCores < 0 || pCores < 0 || eCoresMax < 0 || pCoresMax < 0)
+            {
+                panelCores.Visible = false;
+                return;
+            }
+
+            eCoresMax = Math.Max(8, eCoresMax);
+            pCoresMax = Math.Max(6, pCoresMax);
+
+            panelCores.Visible = true;
+
+            comboCoresE.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboCoresP.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            for (int i = AsusACPI.PCoreMin; i <= pCoresMax; i++) comboCoresP.Items.Add(i.ToString() + " Pcores");
+            for (int i = AsusACPI.ECoreMin; i <= eCoresMax; i++) comboCoresE.Items.Add(i.ToString() + " Ecores");
+
+            comboCoresP.SelectedIndex = Math.Max(Math.Min(pCores - AsusACPI.PCoreMin, comboCoresP.Items.Count - 1), 0);
+            comboCoresE.SelectedIndex = Math.Max(Math.Min(eCores - AsusACPI.ECoreMin, comboCoresE.Items.Count - 1), 0);
+
+            buttonCores.Click += ButtonCores_Click;
+
+        }
+
+        private void ButtonCores_Click(object? sender, EventArgs e)
+        {
+            DialogResult dialogResult = MessageBox.Show(Properties.Strings.AlertAPUMemoryRestart, Properties.Strings.AlertAPUMemoryRestartTitle, MessageBoxButtons.YesNo);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                Program.acpi.SetCores(AsusACPI.ECoreMin + comboCoresE.SelectedIndex, AsusACPI.PCoreMin + comboCoresP.SelectedIndex);
+                Process.Start("shutdown", "/r /t 1");
+            }
+        }
+
+
+        private void PictureScan_Click(object? sender, EventArgs e)
+        {
+            string logFile = Program.acpi.ScanRange();
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(logFile)
+                {
+                    UseShellExecute = true
+                }
+            }.Start();
         }
 
         private void ComboAPU_SelectedIndexChanged(object? sender, EventArgs e)

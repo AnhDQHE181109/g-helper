@@ -62,33 +62,47 @@ namespace GHelper.Mode
 
             if (!Modes.Exists(mode)) mode = 0;
 
-            customFans = false;
-            customPower = 0;
-
             settings.ShowMode(mode);
-            SetModeLabel();
 
             Modes.SetCurrent(mode);
 
-            int status = Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.IsManualModeRequired() ? AsusACPI.PerformanceManual : Modes.GetBase(mode), "Mode");
 
-            // Vivobook fallback
-            if (status != 1)
+            Task.Run(async () =>
             {
-                int vivoMode = Modes.GetBase(mode);
-                if (vivoMode == 1) vivoMode = 2;
-                else if (vivoMode == 2) vivoMode = 1;
-                Program.acpi.DeviceSet(AsusACPI.VivoBookMode, vivoMode, "VivoMode");
-            }
+                bool reset = AppConfig.IsResetRequired() && (Modes.GetBase(oldMode) == Modes.GetBase(mode)) && customPower > 0;
+
+                customFans = false;
+                customPower = 0;
+                SetModeLabel();
+
+                // Workaround for not properly resetting limits on G14 2024
+                if (reset)
+                {
+                    Program.acpi.DeviceSet(AsusACPI.PerformanceMode, (Modes.GetBase(oldMode) != 1) ? AsusACPI.PerformanceTurbo : AsusACPI.PerformanceBalanced, "Reset");
+                    await Task.Delay(TimeSpan.FromMilliseconds(1500));
+                }
+
+                int status = Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.IsManualModeRequired() ? AsusACPI.PerformanceManual : Modes.GetBase(mode), "Mode");
+                // Vivobook fallback
+                if (status != 1) Program.acpi.SetVivoMode(Modes.GetBase(mode));
+
+                SetGPUClocks();
+
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+                AutoFans();
+                await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                AutoPower();
+
+
+            });
+
 
             if (AppConfig.Is("xgm_fan") && Program.acpi.IsXGConnected()) XGM.Reset();
 
             if (notify)
                 Program.toast.RunToast(Modes.GetCurrentName(), SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online ? ToastIcon.Charger : ToastIcon.Battery);
 
-            SetGPUClocks();
-            AutoFans();
-            AutoPower(1000);
+
 
             // Power plan from config or defaulting to balanced
             if (AppConfig.GetModeString("scheme") is not null)
@@ -145,18 +159,17 @@ namespace GHelper.Mode
                     Program.acpi.SetFanCurve(AsusFan.Mid, AppConfig.GetFanConfig(AsusFan.Mid));
 
 
-                // something went wrong, resetting to default profile
+                // Alternative way to set fan curve
                 if (cpuResult != 1 || gpuResult != 1)
                 {
                     cpuResult = Program.acpi.SetFanRange(AsusFan.CPU, AppConfig.GetFanConfig(AsusFan.CPU));
                     gpuResult = Program.acpi.SetFanRange(AsusFan.GPU, AppConfig.GetFanConfig(AsusFan.GPU));
 
+                    // Something went wrong, resetting to default profile
                     if (cpuResult != 1 || gpuResult != 1)
                     {
-                        int mode = Modes.GetCurrentBase();
-                        Logger.WriteLine("ASUS BIOS rejected fan curve, resetting mode to " + mode);
-                        Program.acpi.DeviceSet(AsusACPI.PerformanceMode, mode, "Reset Mode");
-                        settings.LabelFansResult("ASUS BIOS rejected fan curve");
+                        Program.acpi.DeviceSet(AsusACPI.PerformanceMode, Modes.GetCurrentBase(), "Reset Mode");
+                        settings.LabelFansResult("Model doesn't support custom fan curves");
                     }
                 }
                 else
@@ -182,52 +195,25 @@ namespace GHelper.Mode
 
         }
 
-        public void AutoPower(int delay = 0)
+        public void AutoPower(bool launchAsAdmin = false)
         {
 
             customPower = 0;
 
             bool applyPower = AppConfig.IsMode("auto_apply_power");
             bool applyFans = AppConfig.IsMode("auto_apply");
-            //bool applyGPU = true;
 
-            if (applyPower && !applyFans)
+            if (applyPower && !applyFans && (AppConfig.IsFanRequired() || AppConfig.IsManualModeRequired()))
             {
-                // force fan curve for misbehaving bios PPTs on some models
-                if (AppConfig.IsFanRequired())
-                {
-                    delay = 500;
-                    AutoFans(true);
-                }
-
-                // Fix for models that don't support PPT settings in all modes, setting a "manual" mode for them
-                if (AppConfig.IsManualModeRequired())
-                {
-                    AutoFans(true);
-                }
+                AutoFans(true);
+                Thread.Sleep(500);
             }
 
-            if (delay > 0)
-            {
-                var timer = new System.Timers.Timer(delay);
-                timer.Elapsed += delegate
-                {
-                    timer.Stop();
-                    timer.Dispose();
+            if (applyPower) SetPower(launchAsAdmin);
 
-                    if (applyPower) SetPower();
-                    Thread.Sleep(500);
-                    SetGPUPower();
-                    AutoRyzen();
-                };
-                timer.Start();
-            }
-            else
-            {
-                if (applyPower) SetPower(true);
-                SetGPUPower();
-                AutoRyzen();
-            }
+            Thread.Sleep(500);
+            SetGPUPower();
+            AutoRyzen();
 
         }
 
@@ -346,18 +332,20 @@ namespace GHelper.Mode
 
             int gpu_boost = AppConfig.GetMode("gpu_boost");
             int gpu_temp = AppConfig.GetMode("gpu_temp");
+            int gpu_power = AppConfig.GetMode("gpu_power");
 
             int boostResult = -1;
 
-            if (gpu_boost < AsusACPI.MinGPUBoost || gpu_boost > AsusACPI.MaxGPUBoost) return;
-            if (gpu_temp < AsusACPI.MinGPUTemp || gpu_temp > AsusACPI.MaxGPUTemp) return;
+            if (gpu_power >= AsusACPI.MinGPUPower && gpu_power <= AsusACPI.MaxGPUPower && Program.acpi.DeviceGet(AsusACPI.GPU_POWER) >= 0)
+                Program.acpi.DeviceSet(AsusACPI.GPU_POWER, gpu_power, "PowerLimit TGP (GPU VAR)");
 
-            if (Program.acpi.DeviceGet(AsusACPI.PPT_GPUC0) >= 0)
-                boostResult = Program.acpi.DeviceSet(AsusACPI.PPT_GPUC0, gpu_boost, "PowerLimit C0");
+            if (gpu_boost >= AsusACPI.MinGPUBoost && gpu_boost <= AsusACPI.MaxGPUBoost && Program.acpi.DeviceGet(AsusACPI.PPT_GPUC0) >= 0) 
+                boostResult = Program.acpi.DeviceSet(AsusACPI.PPT_GPUC0, gpu_boost, "PowerLimit C0 (GPU BOOST)");
 
-            if (Program.acpi.DeviceGet(AsusACPI.PPT_GPUC2) >= 0)
-                Program.acpi.DeviceSet(AsusACPI.PPT_GPUC2, gpu_temp, "PowerLimit C2");
+            if (gpu_temp >= AsusACPI.MinGPUTemp && gpu_temp <= AsusACPI.MaxGPUTemp && Program.acpi.DeviceGet(AsusACPI.PPT_GPUC2) >= 0)
+                Program.acpi.DeviceSet(AsusACPI.PPT_GPUC2, gpu_temp, "PowerLimit C2 (GPU TEMP)");
 
+            // Fallback
             if (boostResult == 0)
                 Program.acpi.DeviceSet(AsusACPI.PPT_GPUC0, gpu_boost, "PowerLimit C0");
 

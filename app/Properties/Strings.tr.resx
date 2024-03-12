@@ -330,11 +330,17 @@
   <data name="DisableController" xml:space="preserve">
     <value>Disable Controller</value>
   </data>
+  <data name="DisableOnLidClose" xml:space="preserve">
+    <value>Disable on lid close</value>
+  </data>
   <data name="DisableOverdrive" xml:space="preserve">
     <value>Ekran overdrive özelliğini devre dışı bırak</value>
   </data>
   <data name="Discharging" xml:space="preserve">
     <value>Şarj azalıyor</value>
+  </data>
+  <data name="DownloadColorProfiles" xml:space="preserve">
+    <value>Download Color Profiles</value>
   </data>
   <data name="DownloadUpdate" xml:space="preserve">
     <value>İndir</value>
@@ -397,6 +403,9 @@ Yine de devam etmek istiyor musunuz?</value>
   </data>
   <data name="FansPower" xml:space="preserve">
     <value>Fanlar + Güç</value>
+  </data>
+  <data name="FlickerFreeDimming" xml:space="preserve">
+    <value>Flicker-free Dimming</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Fn+F kısayol tuşlarını FN tuşuna basmadan çalıştır</value>
@@ -718,6 +727,9 @@ Yine de devam etmek istiyor musunuz?</value>
   </data>
   <data name="VibrationStrength" xml:space="preserve">
     <value>Vibration Strength</value>
+  </data>
+  <data name="VisualMode" xml:space="preserve">
+    <value>Visual Mode</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Sesi Azalt</value>

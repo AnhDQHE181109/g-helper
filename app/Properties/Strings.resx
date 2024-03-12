@@ -330,11 +330,17 @@
   <data name="DisableController" xml:space="preserve">
     <value>Disable Controller</value>
   </data>
+  <data name="DisableOnLidClose" xml:space="preserve">
+    <value>Disable on lid close</value>
+  </data>
   <data name="DisableOverdrive" xml:space="preserve">
     <value>Disable screen overdrive</value>
   </data>
   <data name="Discharging" xml:space="preserve">
     <value>Discharging</value>
+  </data>
+  <data name="DownloadColorProfiles" xml:space="preserve">
+    <value>Download Color Profiles</value>
   </data>
   <data name="DownloadUpdate" xml:space="preserve">
     <value>Download</value>
@@ -397,6 +403,9 @@ Do you still want to continue?</value>
   </data>
   <data name="FansPower" xml:space="preserve">
     <value>Fans + Power</value>
+  </data>
+  <data name="FlickerFreeDimming" xml:space="preserve">
+    <value>Flicker-free Dimming</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Process Fn+F hotkeys without Fn</value>
@@ -699,7 +708,7 @@ Do you still want to continue?</value>
     <value>Turned off</value>
   </data>
   <data name="TurnOffOnBattery" xml:space="preserve">
-    <value>Turn off on battery</value>
+    <value>Disable on battery</value>
   </data>
   <data name="UltimateGPUTooltip" xml:space="preserve">
     <value>Routes laptop screen to dGPU, maximizing FPS</value>
@@ -718,6 +727,9 @@ Do you still want to continue?</value>
   </data>
   <data name="VibrationStrength" xml:space="preserve">
     <value>Vibration Strength</value>
+  </data>
+  <data name="VisualMode" xml:space="preserve">
+    <value>Visual Mode</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Volume Down</value>

@@ -9,7 +9,7 @@ namespace GHelper.Fan
 
         public const int XGM_FAN_MAX = 72;
 
-        public const int INADEQUATE_MAX = 92;
+        public const int INADEQUATE_MAX = 104;
 
         const int FAN_COUNT = 3;
 
@@ -66,6 +66,8 @@ namespace GHelper.Fan
             if (AppConfig.ContainsModel("Z301")) return new int[3] { 72, 64, DEFAULT_FAN_MAX };
 
             if (AppConfig.ContainsModel("GV601")) return new int[3] { 78, 59, 85 };
+
+            if (AppConfig.ContainsModel("GA403")) return new int[3] { 68, 68, 80 };
 
             return new int[3] { DEFAULT_FAN_MAX, DEFAULT_FAN_MAX, DEFAULT_FAN_MAX };
         }

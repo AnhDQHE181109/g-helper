@@ -346,6 +346,9 @@ namespace GHelper
 
         public void CycleVisualMode()
         {
+
+            if (comboVisual.Items.Count < 1) return ;
+
             if (comboVisual.SelectedIndex < comboVisual.Items.Count - 1)
                 comboVisual.SelectedIndex += 1;
             else
@@ -435,7 +438,7 @@ namespace GHelper
 
             panelAlly.Visible = true;
             panelKeyboardTitle.Visible = false;
-            panelKeyboard.Padding = new Padding(20, 0, 20, 20);
+            panelKeyboard.Padding = new Padding(panelKeyboard.Padding.Left, 0, panelKeyboard.Padding.Right, panelKeyboard.Padding.Bottom);
 
             tableAMD.Visible = true;
         }
@@ -1200,6 +1203,22 @@ namespace GHelper
                 buttonMiniled.Visible = false;
             }
 
+            if (!screenEnabled)
+            {
+                labelVisual.Text = Properties.Strings.VisualModesScreen;
+                labelVisual.Visible = true;
+                tableVisual.Visible = false;
+            } else if (hdr)
+            {
+                labelVisual.Text = Properties.Strings.VisualModesHDR;
+                labelVisual.Visible = true;
+                tableVisual.Visible = false;
+            } else 
+            {
+                labelVisual.Visible = false;
+                tableVisual.Visible = true;
+            }
+
         }
 
         private void ButtonQuit_Click(object? sender, EventArgs e)
@@ -1533,6 +1552,7 @@ namespace GHelper
                     tableAMD.Controls.Add(buttonXGM, 1, 0);
                     VisualizeXGM();
                 }
+                VisualiseIcon();
                 return;
             }
 
@@ -1559,13 +1579,11 @@ namespace GHelper
                     buttonOptimized.Activated = GPUAuto;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeEco;
                     panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + (GPUAuto ? Properties.Strings.Optimized : Properties.Strings.EcoMode);
-                    Program.trayIcon.Icon = Properties.Resources.eco;
                     break;
                 case AsusACPI.GPUModeUltimate:
                     buttonUltimate.Activated = true;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeUltimate;
                     panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + Properties.Strings.UltimateMode;
-                    Program.trayIcon.Icon = Properties.Resources.ultimate;
                     break;
                 default:
                     buttonOptimized.BorderColor = colorStandard;
@@ -1573,12 +1591,10 @@ namespace GHelper
                     buttonOptimized.Activated = GPUAuto;
                     labelGPU.Text = Properties.Strings.GPUMode + ": " + Properties.Strings.GPUModeStandard;
                     panelGPU.AccessibleName = Properties.Strings.GPUMode + " - " + (GPUAuto ? Properties.Strings.Optimized : Properties.Strings.StandardMode);
-                    Program.trayIcon.Icon = Properties.Resources.standard;
                     break;
             }
 
-
-
+            VisualiseIcon();
             VisualizeXGM(GPUMode);
 
             if (isGpuSection)
@@ -1589,8 +1605,35 @@ namespace GHelper
                 menuOptimized.Checked = buttonOptimized.Activated;
             }
 
+            // UI Fix for small screeens
+            if (Top < 0)
+            {
+                labelTipGPU.Visible = false;
+                labelTipScreen.Visible = false;
+                Top = 5;
+            }
+
         }
 
+
+        public void VisualiseIcon()
+        {
+            int GPUMode = AppConfig.Get("gpu_mode");
+            bool isDark = CheckSystemDarkModeStatus();
+
+            switch (GPUMode)
+            {
+                case AsusACPI.GPUModeEco:
+                    Program.trayIcon.Icon = AppConfig.IsBWIcon() ? (!isDark ? Properties.Resources.dark_eco : Properties.Resources.light_eco) : Properties.Resources.eco;
+                    break;
+                case AsusACPI.GPUModeUltimate:
+                    Program.trayIcon.Icon = AppConfig.IsBWIcon() ? (!isDark ? Properties.Resources.dark_standard : Properties.Resources.light_standard) : Properties.Resources.ultimate;
+                    break;
+                default:
+                    Program.trayIcon.Icon = AppConfig.IsBWIcon() ? (!isDark ? Properties.Resources.dark_standard : Properties.Resources.light_standard) : Properties.Resources.standard;
+                    break;
+            }
+        }
 
         private void ButtonSilent_Click(object? sender, EventArgs e)
         {

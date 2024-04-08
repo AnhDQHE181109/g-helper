@@ -138,9 +138,9 @@ namespace GHelper
             buttonOptimized.BorderColor = colorEco;
             buttonXGM.BorderColor = colorTurbo;
 
-            button60Hz.BorderColor = SystemColors.ActiveBorder;
-            button120Hz.BorderColor = SystemColors.ActiveBorder;
-            buttonScreenAuto.BorderColor = SystemColors.ActiveBorder;
+            button60Hz.BorderColor = colorGray;
+            button120Hz.BorderColor = colorGray;
+            buttonScreenAuto.BorderColor = colorGray;
             buttonMiniled.BorderColor = colorTurbo;
 
             buttonSilent.Click += ButtonSilent_Click;
@@ -256,13 +256,28 @@ namespace GHelper
             VisualiseFnLock();
             buttonFnLock.Click += ButtonFnLock_Click;
 
+            labelVisual.Click += LabelVisual_Click;
+            labelCharge.Click += LabelCharge_Click;
+
             panelPerformance.Focus();
             InitVisual();
         }
 
+        private void LabelCharge_Click(object? sender, EventArgs e)
+        {
+            BatteryControl.BatteryReport();
+        }
+
+        private void LabelVisual_Click(object? sender, EventArgs e)
+        {
+            labelVisual.Visible = false;
+            VisualControl.forceVisual = true;
+        }
 
         public void InitVisual()
         {
+
+            if (AppConfig.Is("hide_visual")) return;
 
             if (AppConfig.IsOLED())
             {
@@ -1203,21 +1218,20 @@ namespace GHelper
                 buttonMiniled.Visible = false;
             }
 
-            if (!screenEnabled)
+            if (hdr) labelVisual.Text = Properties.Strings.VisualModesHDR;
+            if (!screenEnabled) labelVisual.Text = Properties.Strings.VisualModesScreen;
+
+            if (!screenEnabled || hdr)
             {
-                labelVisual.Text = Properties.Strings.VisualModesScreen;
+                labelVisual.Location = tableVisual.Location;
+                labelVisual.Width = tableVisual.Width;
+                labelVisual.Height = tableVisual.Height;
                 labelVisual.Visible = true;
-                tableVisual.Visible = false;
-            } else if (hdr)
-            {
-                labelVisual.Text = Properties.Strings.VisualModesHDR;
-                labelVisual.Visible = true;
-                tableVisual.Visible = false;
-            } else 
+            } else
             {
                 labelVisual.Visible = false;
-                tableVisual.Visible = true;
             }
+
 
         }
 
@@ -1663,7 +1677,7 @@ namespace GHelper
             sliderBattery.Value = limit;
 
             sliderBattery.AccessibleName = Properties.Strings.BatteryChargeLimit + ": " + limit.ToString() + "%";
-            sliderBattery.AccessibilityObject.Select(AccessibleSelection.TakeFocus);
+            //sliderBattery.AccessibilityObject.Select(AccessibleSelection.TakeFocus);
 
             VisualiseBatteryFull();
         }

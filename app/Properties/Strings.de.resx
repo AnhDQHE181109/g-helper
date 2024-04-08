@@ -494,6 +494,9 @@ Trotzdem fortfahren?</value>
   <data name="LaptopScreen" xml:space="preserve">
     <value>Laptopbildschirm</value>
   </data>
+  <data name="LEDStatusIndicators" xml:space="preserve">
+    <value>LED-Statusanzeige</value>
+  </data>
   <data name="Lid" xml:space="preserve">
     <value>Deckel</value>
   </data>
@@ -502,6 +505,9 @@ Trotzdem fortfahren?</value>
   </data>
   <data name="Lighting" xml:space="preserve">
     <value>Beleuchtung</value>
+  </data>
+  <data name="LockScreen" xml:space="preserve">
+    <value>Lock Screen</value>
   </data>
   <data name="Logo" xml:space="preserve">
     <value>Logo</value>
@@ -766,6 +772,12 @@ Trotzdem fortfahren?</value>
   </data>
   <data name="VisualMode" xml:space="preserve">
     <value>Darstellungsmodus</value>
+  </data>
+  <data name="VisualModesHDR" xml:space="preserve">
+    <value>Darstellungsmodi sind nicht verfügbar, wenn HDR aktiv ist.</value>
+  </data>
+  <data name="VisualModesScreen" xml:space="preserve">
+    <value>Darstellungsmodi sind nicht verfügbar, wenn Laptop-Bildschirm aus ist.</value>
   </data>
   <data name="VolumeDown" xml:space="preserve">
     <value>Lautstärke verringern</value>

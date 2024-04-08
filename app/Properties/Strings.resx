@@ -494,6 +494,9 @@ Do you still want to continue?</value>
   <data name="LaptopScreen" xml:space="preserve">
     <value>Laptop Screen</value>
   </data>
+  <data name="LEDStatusIndicators" xml:space="preserve">
+    <value>LED Status Indicators</value>
+  </data>
   <data name="Lid" xml:space="preserve">
     <value>Lid</value>
   </data>
@@ -502,6 +505,9 @@ Do you still want to continue?</value>
   </data>
   <data name="Lighting" xml:space="preserve">
     <value>Lighting</value>
+  </data>
+  <data name="LockScreen" xml:space="preserve">
+    <value>Lock Screen</value>
   </data>
   <data name="Logo" xml:space="preserve">
     <value>Logo</value>

@@ -118,6 +118,8 @@ namespace GHelper.Input
 
             if (!AppConfig.Is("skip_hotkeys"))
             {
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F13);
+
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F14);
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F15);
 
@@ -126,6 +128,7 @@ namespace GHelper.Input
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F18);
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F19);
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F20);
+
 
 
                 hook.RegisterHotKey(ModifierKeys.Control, Keys.VolumeDown);
@@ -385,6 +388,9 @@ namespace GHelper.Input
                     case Keys.F4:
                         Program.settingsForm.BeginInvoke(Program.settingsForm.allyControl.ToggleModeHotkey);
                         break;
+                    case Keys.F13:
+                        ToggleScreenRate();
+                        break;
                     case Keys.F14:
                         Program.settingsForm.gpuControl.SetGPUMode(AsusACPI.GPUModeEco);
                         break;
@@ -472,6 +478,10 @@ namespace GHelper.Input
                     break;
                 case "screenshot":
                     KeyboardHook.KeyPress(Keys.Snapshot);
+                    break;
+                case "lock":
+                    Logger.WriteLine("Screen lock");
+                    NativeMethods.LockScreen();
                     break;
                 case "screen":
                     Logger.WriteLine("Screen off toggle");
@@ -687,6 +697,18 @@ namespace GHelper.Input
                     case 199: // ON Z13 - FN+F11 - cycles backlight
                         SetBacklight(4);
                         return;
+                    case 46: // Fn + F4 Vivobook Brightness down
+                        if (Control.ModifierKeys == Keys.Control && AppConfig.IsOLED())
+                        {
+                            SetBrightnessDimming(-10);
+                        }
+                        break;
+                    case 47: // Fn + F5 Vivobook Brightness up
+                        if (Control.ModifierKeys == Keys.Control && AppConfig.IsOLED())
+                        {
+                            SetBrightnessDimming(10);
+                        }
+                        break;
                 }
             }
 
@@ -809,15 +831,21 @@ namespace GHelper.Input
         public static void ToggleScreenpad()
         {
             int toggle = AppConfig.Is("screenpad_toggle") ? 0 : 1;
-            int brightness = AppConfig.Get("screenpad", 100);
+            int brightness = toggle == 0 ? -10 : AppConfig.Get("screenpad", 100);
 
-            Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, toggle, "ScreenpadToggle");
-            if (toggle > 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, Math.Max(brightness * 255 / 100, 0), "Screenpad");
+            Debug.WriteLine($"Screenpad toggle = {toggle}");
+
+            ApplyScreenpadAction(brightness, true);
 
             AppConfig.Set("screenpad_toggle", toggle);
 
-
             Program.toast.RunToast($"Screen Pad " + (toggle == 1 ? "On" : "Off"), toggle > 0 ? ToastIcon.BrightnessUp : ToastIcon.BrightnessDown);
+        }
+
+        public static void ToggleScreenRate()
+        {
+            AppConfig.Set("screen_auto", 0);
+            screenControl.ToggleScreenRate();
         }
 
         public static void ToggleCamera()
@@ -851,6 +879,37 @@ namespace GHelper.Input
 
         }
 
+        private static System.Threading.Timer screenpadActionTimer;
+        private static int screenpadBrightnessToSet;
+        public static void ApplyScreenpadAction(int brightness, bool doToggle = false)
+        {
+            var delay = AppConfig.Get("screenpad_delay", 1500);
+
+            //Action
+            Action<int> action = (b) =>
+            {
+                if (b >= 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 1, "ScreenpadOn");
+                Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, Math.Max(b * 255 / 100, 0), "Screenpad");
+                if (b < 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 0, "ScreenpadOff");
+            };
+
+            if(delay <= 0 || (brightness > 0 && brightness < 100 && doToggle == false)) //instant action
+            {
+                action(brightness);
+            }
+            else //delayed action
+            {
+                //Timer Approach
+                if (screenpadActionTimer == null)
+                {
+                    screenpadActionTimer = new System.Threading.Timer(_ => action(screenpadBrightnessToSet), null, Timeout.Infinite, Timeout.Infinite);
+                }
+                //Start Timer
+                screenpadBrightnessToSet = brightness;
+                screenpadActionTimer.Change(delay, Timeout.Infinite);
+            }
+        }
+
         public static void SetScreenpad(int delta)
         {
             int brightness = AppConfig.Get("screenpad", 100);
@@ -860,7 +919,6 @@ namespace GHelper.Input
                 if (brightness < 0) brightness = 100;
                 else if (brightness >= 100) brightness = 0;
                 else brightness = -10;
-
             }
             else
             {
@@ -869,11 +927,7 @@ namespace GHelper.Input
 
             AppConfig.Set("screenpad", brightness);
 
-            if (brightness >= 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 1, "ScreenpadOn");
-
-            Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, Math.Max(brightness * 255 / 100, 0), "Screenpad");
-
-            if (brightness < 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 0, "ScreenpadOff");
+            ApplyScreenpadAction(brightness);
 
             string toast;
 
@@ -882,9 +936,7 @@ namespace GHelper.Input
             else toast = brightness.ToString() + "%";
 
             Program.toast.RunToast($"Screen Pad {toast}", delta > 0 ? ToastIcon.BrightnessUp : ToastIcon.BrightnessDown);
-
         }
-
 
         static void LaunchProcess(string command = "")
         {

@@ -79,6 +79,7 @@ public class AsusACPI
     public const uint ScreenOverdrive = 0x00050019;
     public const uint ScreenMiniled1 = 0x0005001E;
     public const uint ScreenMiniled2 = 0x0005002E;
+    public const uint ScreenFHD = 0x0005001C;
 
     public const uint DevsCPUFan = 0x00110022;
     public const uint DevsGPUFan = 0x00110023;
@@ -165,6 +166,9 @@ public class AsusACPI
 
     public const int PCoreMax = 16;
     public const int ECoreMax = 16;
+
+    private bool? _allAMD = null;
+    private bool? _overdrive = null;
 
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -635,8 +639,14 @@ public class AsusACPI
 
     public bool IsAllAmdPPT()
     {
-        //return false; 
-        return DeviceGet(PPT_CPUB0) >= 0 && DeviceGet(PPT_GPUC0) < 0;
+        if (_allAMD is null) _allAMD = DeviceGet(PPT_CPUB0) >= 0 && DeviceGet(PPT_GPUC0) < 0;
+        return (bool)_allAMD;
+    }
+
+    public bool IsOverdriveSupported()
+    {
+        if (_overdrive is null) _overdrive = DeviceGet(ScreenOverdrive) >= 0;
+        return (bool)_overdrive;
     }
 
     public bool IsNVidiaGPU()

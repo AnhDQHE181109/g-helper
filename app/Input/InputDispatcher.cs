@@ -85,7 +85,8 @@ namespace GHelper.Input
 
             InitBacklightTimer();
 
-            if (AppConfig.IsVivoZenbook()) Program.acpi.DeviceSet(AsusACPI.FnLock, AppConfig.Is("fn_lock") ? 1 : 0, "FnLock");
+            if (AppConfig.IsVivoZenbook())
+                Program.acpi.DeviceSet(AsusACPI.FnLock, AppConfig.Is("fn_lock") ^ AppConfig.IsInvertedFNLock() ? 1 : 0, "FnLock");
 
         }
 
@@ -489,8 +490,8 @@ namespace GHelper.Input
                     break;
                 case "miniled":
                     if (ScreenCCD.GetHDRStatus()) return;
-                    int miniled = screenControl.ToogleMiniled();
-                    Program.toast.RunToast(miniled == 1 ? "Multi-Zone" : "Single-Zone", miniled == 1 ? ToastIcon.BrightnessUp : ToastIcon.BrightnessDown);
+                    string miniledName = screenControl.ToogleMiniled();
+                    Program.toast.RunToast(miniledName, miniledName == Properties.Strings.OneZone ? ToastIcon.BrightnessDown : ToastIcon.BrightnessUp);
                     break;
                 case "aura":
                     Program.settingsForm.BeginInvoke(Program.settingsForm.CycleAuraMode);
@@ -585,17 +586,17 @@ namespace GHelper.Input
 
         public static void ToggleFnLock()
         {
-            int fnLock = AppConfig.Is("fn_lock") ? 0 : 1;
-            AppConfig.Set("fn_lock", fnLock);
+            bool fnLock = !AppConfig.Is("fn_lock");
+            AppConfig.Set("fn_lock", fnLock ? 1 : 0);
 
             if (AppConfig.IsVivoZenbook())
-                Program.acpi.DeviceSet(AsusACPI.FnLock, fnLock == 1 ? 1 : 0, "FnLock");
+                Program.acpi.DeviceSet(AsusACPI.FnLock, fnLock ^ AppConfig.IsInvertedFNLock() ? 1 : 0, "FnLock");
             else
                 Program.settingsForm.BeginInvoke(Program.inputDispatcher.RegisterKeys);
 
             Program.settingsForm.BeginInvoke(Program.settingsForm.VisualiseFnLock);
 
-            Program.toast.RunToast(fnLock == 1 ? Properties.Strings.FnLockOn : Properties.Strings.FnLockOff, ToastIcon.FnLock);
+            Program.toast.RunToast(fnLock ? Properties.Strings.FnLockOn : Properties.Strings.FnLockOff, ToastIcon.FnLock);
         }
 
         public static void TabletMode()
@@ -940,32 +941,16 @@ namespace GHelper.Input
 
         static void LaunchProcess(string command = "")
         {
-
+            if (string.IsNullOrEmpty(command)) return;
             try
             {
-
-                //string executable = command.Split(' ')[0];
-                //string arguments = command.Substring(executable.Length).Trim();
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd", "/C " + command);
-
-                startInfo.RedirectStandardOutput = true;
-                startInfo.RedirectStandardError = true;
-                startInfo.UseShellExecute = false;
-                startInfo.CreateNoWindow = true;
-
-                startInfo.WorkingDirectory = Environment.CurrentDirectory;
-                //startInfo.Arguments = arguments;
-                Process proc = Process.Start(startInfo);
+                RestrictedProcessHelper.RunAsRestrictedUser(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"), "/C " + command);
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.WriteLine("Failed to run  " + command);
+                Logger.WriteLine($"Failed to run: {command} {ex.Message}");
             }
-
-
         }
-
-
 
         static void WatcherEventArrived(object sender, EventArrivedEventArgs e)
         {

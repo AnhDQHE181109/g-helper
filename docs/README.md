@@ -7,13 +7,13 @@ Small and lightweight Armoury Crate alternative for Asus laptops offering almost
 Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13, Flow X16, Flow Z13, TUF Series, Strix / Scar Series, ProArt, Vivobook, Zenbook, ROG Ally and many more! 
 
 # [:floppy_disk:Download](https://github.com/seerge/g-helper/releases/latest/download/GHelper.zip)
+### Support project : [:euro: Paypal EUR](https://www.paypal.com/donate/?hosted_button_id=4HMSHS4EBQWTA) | [💵 Paypal USD](https://www.paypal.com/donate/?hosted_button_id=SRM6QUX6ACXDY)
 
 - [FAQ](https://github.com/seerge/g-helper/wiki/FAQ)
 - [Setup and Requirements](https://github.com/seerge/g-helper/wiki/Requirements)
 - [Troubleshooting](https://github.com/seerge/g-helper/wiki/Troubleshooting)
 - [Power User Settings](https://github.com/seerge/g-helper/wiki/Power-user-settings)
 
-### Support project : [:euro: Paypal EUR](https://www.paypal.com/donate/?hosted_button_id=4HMSHS4EBQWTA) | [💵 Paypal USD](https://www.paypal.com/donate/?hosted_button_id=SRM6QUX6ACXDY)
 
 [![G-Helper Download](https://github.com/seerge/g-helper/assets/5920850/4d98465a-63a5-4498-ae14-afb3e67e7e82)](https://github.com/seerge/g-helper/releases/latest/download/GHelper.zip)
 
@@ -23,8 +23,8 @@ Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13
 | [Josh Cravey](https://www.youtube.com/watch?v=hqe-PjuE-K8) | [cbutters Tech](https://www.youtube.com/watch?v=6aVdwJKZSSc) | 
 
 ## 📰 Articles
-1. https://binaryfork.com/ghelper-armoury-crate-alternative-10216/
-2. https://www.digitaltrends.com/computing/g-helper-armoury-crate-alternative/
+1. https://www.digitaltrends.com/computing/g-helper-armoury-crate-alternative/
+2. https://binaryfork.com/ghelper-armoury-crate-alternative-10216/
 
 ## :gift: Advantages 
 
@@ -44,7 +44,7 @@ Works with all popular models, such as ROG Zephyrus G14, G15, G16, M16, Flow X13
 4. Custom fan curve editor, power limits and turbo boost selection for every performance mode
 5. Anime Matrix or Slash Lighting control including animated GIFs, clock and Audio visualizer
 6. Backlight animation modes and colors 
-7. Custom hotkeys (M-keys, FN+X keys)
+7. Hotkey handling
 8. Monitor CPU and GPU temperature, fan speeds and battery status
 9. Battery charge limit to preserve battery health
 10. NVidia GPU overclocking and undervolting
@@ -115,6 +115,7 @@ Huge thanks to [@IceStormNG](https://github.com/IceStormNG) 👑 for contributio
 - ``Ctrl + M1 / M2`` - Screen brightness Down / Up
 - ``Shift + M1 / M2`` - Backlight brightness Down / Up
 - ``Fn + C`` - Fn-Lock
+- ``Fn + Ctrl +  F7 / F8`` - Flicker-free dimming Down / Up
 - ``Fn + Shift + F7 / F8`` - Matrix / Slash Lighting brightness Down / Up
 - ``Fn + Shift + F7 / F8`` - Screenpad brightness Down / Up
 - ``Ctrl + Shift + F20`` - Mute Microphone

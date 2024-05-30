@@ -82,7 +82,7 @@ namespace GHelper.USB
         static bool isACPI = AppConfig.IsTUF() || AppConfig.IsVivoZenbook() || AppConfig.IsProArt();
         static bool isStrix = AppConfig.IsStrix() && !AppConfig.IsNoDirectRGB();
 
-        static bool isStrix4Zone = AppConfig.IsStrixLimitedRGB();
+        static bool isStrix4Zone = AppConfig.Is4ZoneRGB();
         static bool isStrixNumpad = AppConfig.IsStrixNumpad();
 
         static public bool isSingleColor = false;
@@ -183,7 +183,7 @@ namespace GHelper.USB
                 return _modes;
             }
 
-            if (AppConfig.IsStrix() && !AppConfig.IsStrixLimitedRGB())
+            if (AppConfig.IsStrix() && !AppConfig.Is4ZoneRGB())
             {
                 return _modesStrix;
             }

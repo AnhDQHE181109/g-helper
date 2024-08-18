@@ -41,10 +41,19 @@ public static class AppConfig
             {
                 config = JsonSerializer.Deserialize<Dictionary<string, object>>(text);
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.WriteLine("Broken config: " + text);
-                Init();
+                Logger.WriteLine($"Broken config: {ex.Message} {text}");
+                try
+                {
+                    text = File.ReadAllText(configFile + ".bak");
+                    config = JsonSerializer.Deserialize<Dictionary<string, object>>(text);
+                }
+                catch (Exception exb)
+                {
+                    Logger.WriteLine($"Broken backup config: {exb.Message} {text}");
+                    Init();
+                }
             }
         }
         else
@@ -377,6 +386,11 @@ public static class AppConfig
         return ContainsModel("Vivobook") || ContainsModel("Zenbook");
     }
 
+    public static bool IsVivoZenPro()
+    {
+        return ContainsModel("Vivobook") || ContainsModel("Zenbook") || ContainsModel("ProArt");
+    }
+
     // Devices with bugged bios command to change brightness
     public static bool SwappedBrightness()
     {
@@ -402,7 +416,7 @@ public static class AppConfig
 
     public static bool IsSingleColor()
     {
-        return ContainsModel("GA401") || ContainsModel("FX517Z") || ContainsModel("FX516P") || ContainsModel("X13") || IsARCNM() || ContainsModel("GA502IU");
+        return ContainsModel("GA401") || ContainsModel("FX517Z") || ContainsModel("FX516P") || ContainsModel("X13") || IsARCNM() || ContainsModel("GA502IU") || ContainsModel("FA617N") || ContainsModel("FA617X");
     }
 
     public static bool IsSlash()

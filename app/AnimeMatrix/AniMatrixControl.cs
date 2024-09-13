@@ -111,9 +111,12 @@ namespace GHelper.AnimeMatrix
                     deviceSlash.SetEnabled(true);
                     deviceSlash.Init();
 
+                    deviceSlash.SetLidMode(false);
+
                     switch ((SlashMode)running)
                     {
                         case SlashMode.Static:
+                            Logger.WriteLine("Slash: Static");
                             var custom = AppConfig.GetString("slash_custom");
                             if (custom is not null && custom.Length > 0)
                             {
@@ -126,6 +129,7 @@ namespace GHelper.AnimeMatrix
                             break;
                         case SlashMode.BatteryLevel:
                             // call tick to immediately update the pattern
+                            Logger.WriteLine("Slash: Battery Level");
                             SlashTimer_start();
                             SlashTimer_tick();
                             break;
@@ -145,11 +149,6 @@ namespace GHelper.AnimeMatrix
         public void SetLidMode(bool force = false)
         {
             bool matrixLid = AppConfig.Is("matrix_lid");
-
-            if (deviceSlash is not null)
-            {
-                deviceSlash.SetLidMode(true);
-            }
 
             if (matrixLid || force)
             {
@@ -278,7 +277,7 @@ namespace GHelper.AnimeMatrix
         }
 
 
-        private void SlashTimer_start(int interval = 60000)
+        private void SlashTimer_start(int interval = 180000)
         {
             // 100% to 0% in 1hr = 1% every 36 seconds
             // 1 bracket every 14.2857 * 36s = 514s ~ 8m 30s

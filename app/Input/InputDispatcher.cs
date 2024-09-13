@@ -85,8 +85,7 @@ namespace GHelper.Input
 
             InitBacklightTimer();
 
-            if (AppConfig.IsVivoZenbook())
-                Program.acpi.DeviceSet(AsusACPI.FnLock, AppConfig.Is("fn_lock") ^ AppConfig.IsInvertedFNLock() ? 1 : 0, "FnLock");
+            if (AppConfig.IsHardwareFnLock()) HardwareFnLock(AppConfig.Is("fn_lock"));
 
         }
 
@@ -155,7 +154,7 @@ namespace GHelper.Input
 
             // FN-Lock group
 
-            if (AppConfig.Is("fn_lock") && !AppConfig.IsVivoZenbook())
+            if (AppConfig.Is("fn_lock") && !AppConfig.IsHardwareFnLock())
                 for (Keys i = Keys.F1; i <= Keys.F11; i++) hook.RegisterHotKey(ModifierKeys.None, i);
 
             // Arrow-lock group
@@ -629,13 +628,19 @@ namespace GHelper.Input
             Program.toast.RunToast("Arrow-Lock " + (arLock == 1 ? Properties.Strings.On : Properties.Strings.Off), ToastIcon.FnLock);
         }
 
+        public static void HardwareFnLock(bool fnLock)
+        {
+            Program.acpi.DeviceSet(AsusACPI.FnLock, fnLock ^ AppConfig.IsInvertedFNLock() ? 1 : 0, "FnLock");
+            AsusHid.WriteInput([AsusHid.INPUT_ID, 0xD0, 0x4E, fnLock ? (byte)0x00 : (byte)0x01], "USB FnLock");
+        }
+
         public static void ToggleFnLock()
         {
             bool fnLock = !AppConfig.Is("fn_lock");
             AppConfig.Set("fn_lock", fnLock ? 1 : 0);
 
-            if (AppConfig.IsVivoZenbook())
-                Program.acpi.DeviceSet(AsusACPI.FnLock, fnLock ^ AppConfig.IsInvertedFNLock() ? 1 : 0, "FnLock");
+            if (AppConfig.IsHardwareFnLock()) 
+                HardwareFnLock(fnLock);
             else
                 Program.settingsForm.BeginInvoke(Program.inputDispatcher.RegisterKeys);
 
@@ -931,7 +936,7 @@ namespace GHelper.Input
 
         private static System.Threading.Timer screenpadActionTimer;
         private static int screenpadBrightnessToSet;
-        public static void ApplyScreenpadAction(int brightness, bool doToggle = false)
+        public static void ApplyScreenpadAction(int brightness, bool instant = true)
         {
             var delay = AppConfig.Get("screenpad_delay", 1500);
 
@@ -939,11 +944,12 @@ namespace GHelper.Input
             Action<int> action = (b) =>
             {
                 if (b >= 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 1, "ScreenpadOn");
-                Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, Math.Max(b * 255 / 100, 0), "Screenpad");
+                int[] brightnessValues = [0, 4, 9, 14, 21, 32, 48, 73, 111, 169, 255];
+                Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, brightnessValues[Math.Min(brightnessValues.Length - 1, Math.Max(0, b / 10))], "Screenpad");
                 if (b < 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 0, "ScreenpadOff");
             };
 
-            if(delay <= 0 || (brightness > 0 && brightness < 100 && doToggle == false)) //instant action
+            if(delay <= 0 || instant) //instant action
             {
                 action(brightness);
             }
@@ -969,20 +975,19 @@ namespace GHelper.Input
                 if (brightness < 0) brightness = 100;
                 else if (brightness >= 100) brightness = 0;
                 else brightness = -10;
+                ApplyScreenpadAction(brightness, false);
             }
             else
             {
-                brightness = Math.Max(Math.Min(100, brightness + delta), -10);
+                brightness = Math.Max(Math.Min(100, brightness + delta), 0);
+                ApplyScreenpadAction(brightness);
             }
 
             AppConfig.Set("screenpad", brightness);
 
-            ApplyScreenpadAction(brightness);
-
             string toast;
 
             if (brightness < 0) toast = "Off";
-            else if (brightness == 0) toast = "Hidden";
             else toast = brightness.ToString() + "%";
 
             Program.toast.RunToast($"Screen Pad {toast}", delta > 0 ? ToastIcon.BrightnessUp : ToastIcon.BrightnessDown);

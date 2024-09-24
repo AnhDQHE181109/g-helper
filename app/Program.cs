@@ -256,6 +256,8 @@ namespace GHelper
                 settingsForm.AutoKeyboard();
             }
 
+            VisualControl.InitBrightness();
+
             return true;
         }
 
@@ -276,6 +278,7 @@ namespace GHelper
             }
 
             if (SystemInformation.PowerStatus.PowerLineStatus == isPlugged) return;
+            if (AppConfig.Is("disable_power_event")) return;
             SetAutoModes(true);
         }
 

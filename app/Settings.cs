@@ -272,8 +272,9 @@ namespace GHelper
             labelCharge.Click += LabelCharge_Click;
 
             buttonDonate.Click += ButtonDonate_Click;
-            
-            if (AppConfig.Get("start_count") > 10 && !AppConfig.Is("donate_click"))
+
+            int click = AppConfig.Get("donate_click");
+            if (AppConfig.Get("start_count") >= ((click < 10) ? 10 : click + 50))
             {
                 buttonDonate.BorderColor = colorTurbo;
                 buttonDonate.Badge = true;
@@ -293,9 +294,9 @@ namespace GHelper
 
         private void ButtonDonate_Click(object? sender, EventArgs e)
         {
-            AppConfig.Set("donate_click", 1);
+            AppConfig.Set("donate_click", AppConfig.Get("start_count"));
             buttonDonate.Badge = false;
-            Process.Start(new ProcessStartInfo("https://github.com/seerge/g-helper/wiki/Support-Project") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://g-helper.com/support") { UseShellExecute = true });
         }
 
         private void LabelDynamicLighting_Click(object? sender, EventArgs e)
@@ -674,14 +675,14 @@ namespace GHelper
                     {
                         case 0:
                             Logger.WriteLine("Lid Closed");
+                            InputDispatcher.lidClose = AniMatrixControl.lidClose = true;
                             Aura.ApplyBrightness(0, "Lid");
-                            AniMatrixControl.lidClose = true;
                             matrixControl.SetLidMode();
                             break;
                         case 1:
                             Logger.WriteLine("Lid Open");
+                            InputDispatcher.lidClose = AniMatrixControl.lidClose = false;
                             Aura.ApplyBrightness(InputDispatcher.GetBacklight(), "Lid");
-                            AniMatrixControl.lidClose = false;
                             matrixControl.SetLidMode();
                             break;
                     }
@@ -1540,24 +1541,6 @@ namespace GHelper
 
         }
 
-
-        public void AutoKeyboard()
-        {
-
-            if (!AppConfig.Is("skip_aura"))
-            {
-                Aura.ApplyPower();
-                Aura.ApplyAura();
-            }
-
-            InputDispatcher.SetBacklightAuto(true);
-
-            if (Program.acpi.IsXGConnected())
-                XGM.Light(AppConfig.Is("xmg_light"));
-
-            if (AppConfig.HasTabletMode()) InputDispatcher.TabletMode();
-
-        }
 
 
         public void VisualizeXGM(int GPUMode = -1)

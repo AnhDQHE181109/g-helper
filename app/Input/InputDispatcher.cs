@@ -14,9 +14,17 @@ namespace GHelper.Input
     {
         System.Timers.Timer timer = new System.Timers.Timer(1000);
         public static bool backlightActivity = true;
+        public static bool lidClose = false;
 
-        public static Keys keyProfile = Keys.F5;
-        public static Keys keyApp = Keys.F12;
+        public static Keys keyProfile = (Keys)AppConfig.Get("keybind_profile", (int)Keys.F5);
+        public static Keys keyApp = (Keys)AppConfig.Get("keybind_app", (int)Keys.F12);
+
+        public static Keys keyProfile0 = (Keys)AppConfig.Get("keybind_profile_0", (int)Keys.F17);
+        public static Keys keyProfile1 = (Keys)AppConfig.Get("keybind_profile_1", (int)Keys.F18);
+        public static Keys keyProfile2 = (Keys)AppConfig.Get("keybind_profile_2", (int)Keys.F16);
+        public static Keys keyProfile3 = (Keys)AppConfig.Get("keybind_profile_3", (int)Keys.F19);
+        public static Keys keyProfile4 = (Keys)AppConfig.Get("keybind_profile_4", (int)Keys.F20);
+        public static Keys keyXGM = (Keys)AppConfig.Get("keybind_xgm", (int)Keys.F21);
 
         static ModeControl modeControl = Program.modeControl;
         static ScreenControl screenControl = new ScreenControl();
@@ -79,9 +87,14 @@ namespace GHelper.Input
             Program.acpi.DeviceInit();
 
             if (!OptimizationService.IsRunning())
+            {
+                Program.acpi.DeviceGet(AsusACPI.CameraShutter);
                 listener = new KeyboardListener(HandleEvent);
+            }
             else
+            {
                 Logger.WriteLine("Optimization service is running");
+            }
 
             InitBacklightTimer();
 
@@ -101,10 +114,6 @@ namespace GHelper.Input
         {
             hook.UnregisterAll();
 
-            // CTRL + SHIFT + F5 to cycle profiles
-            if (AppConfig.Get("keybind_profile") != -1) keyProfile = (Keys)AppConfig.Get("keybind_profile");
-            if (AppConfig.Get("keybind_app") != -1) keyApp = (Keys)AppConfig.Get("keybind_app");
-
             string actionM1 = AppConfig.GetString("m1");
             string actionM2 = AppConfig.GetString("m2");
 
@@ -118,7 +127,6 @@ namespace GHelper.Input
 
             if (!AppConfig.Is("skip_hotkeys"))
             {
-
                 if (AppConfig.IsDUO())
                 {
                     hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F7);
@@ -130,11 +138,12 @@ namespace GHelper.Input
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F14);
                 hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F15);
 
-                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F16);
-                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F17);
-                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F18);
-                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F19);
-                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Keys.F20);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyProfile0);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyProfile1);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyProfile2);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyProfile3);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyProfile4);
+                hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, keyXGM);
 
                 hook.RegisterHotKey(ModifierKeys.Control, Keys.VolumeDown);
                 hook.RegisterHotKey(ModifierKeys.Control, Keys.VolumeUp);
@@ -426,6 +435,13 @@ namespace GHelper.Input
             {
                 if (e.Key == keyProfile) modeControl.CyclePerformanceMode(true);
 
+                if (e.Key == keyProfile0) modeControl.SetPerformanceMode(0, true);
+                if (e.Key == keyProfile1) modeControl.SetPerformanceMode(1, true);
+                if (e.Key == keyProfile2) modeControl.SetPerformanceMode(2, true);
+                if (e.Key == keyProfile3) modeControl.SetPerformanceMode(3, true);
+                if (e.Key == keyProfile4) modeControl.SetPerformanceMode(4, true);
+                if (e.Key == keyXGM) Program.settingsForm.gpuControl.ToggleXGM(true);
+
                 switch (e.Key)
                 {
                     case Keys.F1:
@@ -456,21 +472,6 @@ namespace GHelper.Input
                     case Keys.F15:
                         Program.toast.RunToast(Properties.Strings.StandardMode);
                         Program.settingsForm.gpuControl.SetGPUMode(AsusACPI.GPUModeStandard);
-                        break;
-                    case Keys.F16:
-                        modeControl.SetPerformanceMode(2, true);
-                        break;
-                    case Keys.F17:
-                        modeControl.SetPerformanceMode(0, true);
-                        break;
-                    case Keys.F18:
-                        modeControl.SetPerformanceMode(1, true);
-                        break;
-                    case Keys.F19:
-                        modeControl.SetPerformanceMode(3, true);
-                        break;
-                    case Keys.F20:
-                        modeControl.SetPerformanceMode(4, true);
                         break;
                 }
             }
@@ -671,7 +672,7 @@ namespace GHelper.Input
             bool fnLock = !AppConfig.Is("fn_lock");
             AppConfig.Set("fn_lock", fnLock ? 1 : 0);
 
-            if (AppConfig.IsHardwareFnLock()) 
+            if (AppConfig.IsHardwareFnLock())
                 HardwareFnLock(fnLock);
             else
                 Program.settingsForm.BeginInvoke(Program.inputDispatcher.RegisterKeys);
@@ -748,6 +749,7 @@ namespace GHelper.Input
                         KeyProcess("fne");
                         return;
                     case 174:   // FN+F5
+                    case 153:   // FN+F5 OLD MODELS
                     case 157:   // Zenbook DUO FN+F
                         modeControl.CyclePerformanceMode(Control.ModifierKeys == Keys.Shift);
                         return;
@@ -879,10 +881,22 @@ namespace GHelper.Input
             return Math.Max(Math.Min(3, backlight), 0);
         }
 
-        public static void SetBacklightAuto(bool init = false)
+        public static void AutoKeyboard()
         {
-            if (init) Aura.Init();
-            Aura.ApplyBrightness(GetBacklight(), "Auto", init);
+            if (AppConfig.HasTabletMode()) TabletMode();
+            if (lidClose || AppConfig.Is("skip_aura")) return;
+
+            Aura.Init();
+            Aura.ApplyPower();
+            Aura.ApplyAura();
+            SetBacklightAuto();
+        }
+
+
+        public static void SetBacklightAuto()
+        {
+            if (lidClose) return;
+            Aura.ApplyBrightness(GetBacklight(), "Auto");
         }
 
         public static void SetBacklight(int delta, bool force = false)
@@ -938,33 +952,55 @@ namespace GHelper.Input
 
         public static void ToggleCamera()
         {
-            if (!ProcessHelper.IsUserAdministrator()) return;
+            int cameraShutter = Program.acpi.DeviceGet(AsusACPI.CameraShutter);
 
-            string CameraRegistryKeyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam";
-            string CameraRegistryValueName = "Value";
-
-            try
+            if (cameraShutter == 0)
             {
-                var status = (string?)Registry.GetValue(CameraRegistryKeyPath, CameraRegistryValueName, "");
+                Program.acpi.DeviceSet(AsusACPI.CameraShutter, 1, "CameraShutterOn");
+                Program.toast.RunToast($"Camera Off");
+            }
+            else if (cameraShutter == 1)
+            {
+                Program.acpi.DeviceSet(AsusACPI.CameraShutter, 0, "CameraShutterOff");
+                Program.toast.RunToast($"Camera On");
+            }
+            else if (cameraShutter == 262144)
+            {
+                Program.toast.RunToast($"Camera Off");
+            }
+            else if (cameraShutter == 262145)
+            {
+                Program.toast.RunToast($"Camera On");
+            }
+            else
+            {
+                if (!ProcessHelper.IsUserAdministrator()) return;
 
-                if (status == "Allow") status = "Deny";
-                else if (status == "Deny") status = "Allow";
-                else
+                string CameraRegistryKeyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam";
+                string CameraRegistryValueName = "Value";
+
+                try
                 {
-                    Logger.WriteLine("Unknown camera status");
-                    return;
+                    var status = (string?)Registry.GetValue(CameraRegistryKeyPath, CameraRegistryValueName, "");
+
+                    if (status == "Allow") status = "Deny";
+                    else if (status == "Deny") status = "Allow";
+                    else
+                    {
+                        Logger.WriteLine("Unknown camera status");
+                        return;
+                    }
+
+                    Registry.SetValue(CameraRegistryKeyPath, CameraRegistryValueName, status, RegistryValueKind.String);
+                    Program.acpi.DeviceSet(AsusACPI.CameraLed, (status == "Deny" ? 1 : 0), "Camera");
+                    Program.toast.RunToast($"Camera " + (status == "Deny" ? "Off" : "On"));
+
                 }
-
-                Registry.SetValue(CameraRegistryKeyPath, CameraRegistryValueName, status, RegistryValueKind.String);
-                Program.acpi.DeviceSet(AsusACPI.CameraLed, (status == "Deny" ? 1 : 0), "Camera");
-                Program.toast.RunToast($"Camera " + (status == "Deny" ? "Off" : "On"));
-
+                catch (Exception ex)
+                {
+                    Logger.WriteLine(ex.ToString());
+                }
             }
-            catch (Exception ex)
-            {
-                Logger.WriteLine(ex.ToString());
-            }
-
         }
 
         private static System.Threading.Timer screenpadActionTimer;
@@ -982,7 +1018,7 @@ namespace GHelper.Input
                 if (b < 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, 0, "ScreenpadOff");
             };
 
-            if(delay <= 0 || instant) //instant action
+            if (delay <= 0 || instant) //instant action
             {
                 action(brightness);
             }
@@ -1031,6 +1067,21 @@ namespace GHelper.Input
             if (!AppConfig.IsDUO()) return;
             int brightness = AppConfig.Get("screenpad");
             if (brightness >= 0) ApplyScreenpadAction(brightness);
+        }
+
+        public static void SetStatusLED(bool status)
+        {
+            Program.acpi.DeviceSet(AsusACPI.StatusLed, status ? 7 : 0, "StatusLED");
+        }
+
+        public static void InitStatusLed()
+        {
+            if (AppConfig.IsAutoStatusLed()) SetStatusLED(true);
+        }
+
+        public static void ShutdownStatusLed()
+        {
+            if (AppConfig.IsAutoStatusLed()) SetStatusLED(false);
         }
 
         static void LaunchProcess(string command = "")

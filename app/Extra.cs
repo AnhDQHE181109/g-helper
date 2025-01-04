@@ -425,6 +425,11 @@ namespace GHelper
             checkStatusLed.Checked = (statusLed > 0);
             checkStatusLed.CheckedChanged += CheckLEDStatus_CheckedChanged;
 
+            var optimalBrightness = screenControl.GetOptimalBrightness();
+            checkOptimalBrightness.Visible = optimalBrightness >= 0;
+            checkOptimalBrightness.Checked = (optimalBrightness > 0);
+            checkOptimalBrightness.CheckedChanged += CheckOptimalBrightness_CheckedChanged;
+
 
             checkBWIcon.Checked = AppConfig.IsBWIcon();
             checkBWIcon.CheckedChanged += CheckBWIcon_CheckedChanged;
@@ -451,6 +456,11 @@ namespace GHelper
 
             InitACPITesting();
 
+        }
+
+        private void CheckOptimalBrightness_CheckedChanged(object? sender, EventArgs e)
+        {
+            screenControl.SetOptimalBrightness(checkOptimalBrightness.Checked ? 1 : 0);
         }
 
         private void CheckPerKeyRGB_CheckedChanged(object? sender, EventArgs e)

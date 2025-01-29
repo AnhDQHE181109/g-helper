@@ -413,7 +413,7 @@ public static class AppConfig
 
     public static bool IsDUO()
     {
-        return ContainsModel("Duo") || ContainsModel("GX550") || ContainsModel("GX650") || ContainsModel("UX840");
+        return ContainsModel("Duo") || ContainsModel("GX550") || ContainsModel("GX650") || ContainsModel("UX840") || ContainsModel("UX482");
     }
 
     // G14 2020 has no aura, but media keys instead
@@ -424,7 +424,7 @@ public static class AppConfig
 
     public static bool MediaKeys()
     {
-        return (ContainsModel("GA401I") && !ContainsModel("GA401IHR")) || ContainsModel("G712L");
+        return (ContainsModel("GA401I") && !ContainsModel("GA401IHR")) || ContainsModel("G712L") || ContainsModel("GX502L");
     }
 
     public static bool IsSingleColor()
@@ -668,6 +668,11 @@ public static class AppConfig
         return ContainsModel("G814") || ContainsModel("G614") || ContainsModel("G834") || ContainsModel("G634");
     }
 
+    public static bool Is8Ecores()
+    {
+        return ContainsModel("FX507Z");
+    }
+
     public static bool IsNoFNV()
     {
         return ContainsModel("FX507") || ContainsModel("FX707");
@@ -694,7 +699,7 @@ public static class AppConfig
 
     public static bool IsChargeLimit6080()
     {
-        return ContainsModel("GA403U") || ContainsModel("GU605") || ContainsModel("GA605") || ContainsModel("GA503R") || (IsTUF() && !(ContainsModel("FX507Z") || ContainsModel("FA617")));
+        return ContainsModel("H760") || ContainsModel("GA403U") || ContainsModel("GU605") || ContainsModel("GA605") || ContainsModel("GA503R") || (IsTUF() && !(ContainsModel("FX507Z") || ContainsModel("FA617")));
 
     }
 

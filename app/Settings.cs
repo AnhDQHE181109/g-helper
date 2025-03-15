@@ -1463,6 +1463,11 @@ namespace GHelper
                 {
                     labelCPUFan.Text = "CPU" + cpuTemp + " " + HardwareControl.cpuFan;
                     labelGPUFan.Text = "GPU" + gpuTemp + " " + HardwareControl.gpuFan;
+                    if (HardwareControl.gpuFan is not null && AppConfig.NoGpu())
+                    {
+                        labelMidFan.Text = "GPU" + gpuTemp + " " + HardwareControl.gpuFan;
+                    }
+
                     if (HardwareControl.midFan is not null)
                         labelMidFan.Text = "Mid " + HardwareControl.midFan;
 
@@ -1561,7 +1566,7 @@ namespace GHelper
             if (!connected) return;
 
             if (GPUMode != -1)
-                ButtonEnabled(buttonXGM, AppConfig.IsNoGPUModes() || GPUMode != AsusACPI.GPUModeEco);
+                ButtonEnabled(buttonXGM, AppConfig.IsAMDiGPU() || GPUMode != AsusACPI.GPUModeEco);
 
 
             int activated = Program.acpi.DeviceGet(AsusACPI.GPUXG);

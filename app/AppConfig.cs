@@ -403,7 +403,7 @@ public static class AppConfig
 
     public static bool IsHardwareFnLock()
     {
-        return IsVivoZenPro();
+        return IsVivoZenPro() || ContainsModel("GZ302EA");
     }
 
     // Devices with bugged bios command to change brightness
@@ -496,7 +496,7 @@ public static class AppConfig
 
     public static bool IsPossible4ZoneRGB()
     {
-        return ContainsModel("G614JI_") || ContainsModel("G614JV_") || ContainsModel("G614JZ") || IsStrixLimitedRGB();
+        return ContainsModel("G614JI_") || ContainsModel("G614JV_") || ContainsModel("G614JZ") || ContainsModel("G614JU") || IsStrixLimitedRGB();
     }
 
     public static bool Is4ZoneRGB()
@@ -527,6 +527,11 @@ public static class AppConfig
     public static bool IsZ13()
     {
         return ContainsModel("Z13");
+    }
+
+    public static bool IsPZ13()
+    {
+        return ContainsModel("PZ13");
     }
 
     public static bool IsS17()
@@ -627,7 +632,7 @@ public static class AppConfig
 
     public static bool IsFanRequired()
     {
-        return ContainsModel("GA402X") || ContainsModel("G513") || ContainsModel("G713R") || ContainsModel("G713P") || ContainsModel("GU605") || ContainsModel("GA605") || ContainsModel("GA403") || ContainsModel("G634J") || ContainsModel("G834J") || ContainsModel("G614J") || ContainsModel("G814J") || ContainsModel("FX507V");
+        return ContainsModel("GA402X") || ContainsModel("G513") || ContainsModel("G713R") || ContainsModel("G713P") || ContainsModel("GU605") || ContainsModel("GA605") || ContainsModel("G634J") || ContainsModel("G834J") || ContainsModel("G614J") || ContainsModel("G814J") || ContainsModel("FX507V");
     }
 
     public static bool IsAMDLight()

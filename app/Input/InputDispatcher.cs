@@ -636,6 +636,11 @@ namespace GHelper.Input
         }
 
 
+        static void MuteLED()
+        {
+            Program.acpi.DeviceSet(AsusACPI.SoundMuteLed, Audio.IsMuted() ? 1 : 0, "SoundLed");
+        }
+
         static void ToggleTouchScreen()
         {
             var status = !TouchscreenHelper.GetStatus();
@@ -649,7 +654,7 @@ namespace GHelper.Input
 
         static void ToggleMic()
         {
-            bool muteStatus = Audio.ToggleMute();
+            bool muteStatus = Audio.ToggleMicMute();
             Program.toast.RunToast(muteStatus ? Properties.Strings.Muted : Properties.Strings.Unmuted, muteStatus ? ToastIcon.MicrophoneMute : ToastIcon.Microphone);
             if (AppConfig.IsVivoZenbook()) Program.acpi.DeviceSet(AsusACPI.MicMuteLed, muteStatus ? 1 : 0, "MicmuteLed");
         }
@@ -802,7 +807,6 @@ namespace GHelper.Input
                         return;
                     case 174:   // FN+F5
                     case 153:   // FN+F5 OLD MODELS
-                    case 157:   // Zenbook DUO FN+F
                         modeControl.CyclePerformanceMode(Control.ModifierKeys == Keys.Shift);
                         return;
                     case 179:   // FN+F4
@@ -913,8 +917,13 @@ namespace GHelper.Input
                 case 136:    // FN + F12
                     if (!AppConfig.IsNoAirplaneMode()) Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.Airplane, "Airplane");
                     return;
-
-
+                case 50:
+                    // Sound Mute Event
+                    MuteLED();
+                    return;
+                case 157:   // Zenbook DUO FN+F
+                    modeControl.CyclePerformanceMode(Control.ModifierKeys == Keys.Shift);
+                    return;
             }
         }
 
@@ -936,11 +945,19 @@ namespace GHelper.Input
         public static void AutoKeyboard()
         {
             if (AppConfig.HasTabletMode()) TabletMode();
-            if (lidClose || AppConfig.Is("skip_aura")) return;
+            if (lidClose)
+            {
+                Logger.WriteLine("Skipping Backlight Init: Lid Closed");
+                return;
+            }
 
-            Aura.Init();
-            Aura.ApplyPower();
-            Aura.ApplyAura();
+            if (!AppConfig.Is("skip_aura"))
+            {
+                Aura.Init();
+                Aura.ApplyPower();
+                Aura.ApplyAura();
+            }
+
             SetBacklightAuto(true);
         }
 
@@ -950,6 +967,11 @@ namespace GHelper.Input
             if (lidClose) return;
             if (init) Aura.Init();
             Aura.ApplyBrightness(GetBacklight(), "Auto", init);
+        }
+
+        public static void StartupBacklight()
+        {
+            Aura.DirectBrightness(GetBacklight(), "Startup");
         }
 
         public static void SetBacklight(int delta, bool force = false)
@@ -1007,6 +1029,7 @@ namespace GHelper.Input
         public static void ToggleCamera()
         {
             int cameraShutter = Program.acpi.DeviceGet(AsusACPI.CameraShutter);
+            Logger.WriteLine("Camera Shutter status: " + cameraShutter);
 
             if (cameraShutter == 0)
             {
@@ -1016,6 +1039,16 @@ namespace GHelper.Input
             else if (cameraShutter == 1)
             {
                 Program.acpi.DeviceSet(AsusACPI.CameraShutter, 0, "CameraShutterOff");
+                Program.toast.RunToast($"Camera On");
+            }
+            else if (cameraShutter == 1048577)
+            {
+                Program.acpi.DeviceSet(AsusACPI.CameraShutter, 5, "CameraShutter");
+                Program.toast.RunToast($"Camera Off");
+            }
+            else if (cameraShutter == 1048576)
+            {
+                Program.acpi.DeviceSet(AsusACPI.CameraShutter, 4, "CameraShutter");
                 Program.toast.RunToast($"Camera On");
             }
             else if (cameraShutter == 262144)
